@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Native Messaging Test</title>
+    <style>
+        body {
+            font-family: 'Consolas', 'Courier New', monospace;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #252526;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+        h1 {
+            color: #4ec9b0;
+            margin-bottom: 10px;
+        }
+        button {
+            background: #0e639c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #1177bb;
+        }
+        .log {
+            background: #1e1e1e;
+            border: 1px solid #3c3c3c;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-left: 3px solid #007acc;
+            padding-left: 10px;
+        }
+        .log-error {
+            border-left-color: #f48771;
+            color: #f48771;
+        }
+        .log-success {
+            border-left-color: #4ec9b0;
+            color: #4ec9b0;
+        }
+        .log-info {
+            border-left-color: #dcdcaa;
+            color: #dcdcaa;
+        }
+        pre {
+            margin: 5px 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #2d2d30;
+            border-radius: 4px;
+        }
+        .section h2 {
+            color: #569cd6;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Native Messaging Direct Test</h1>
+        <p>This page tests native messaging directly from the background script.</p>
+        
+        <div class="section">
+            <h2>Quick Tests</h2>
+            <button onclick="testPing()">1. Ping Native Helper</button>
+            <button onclick="testReadCard()">2. Read Card</button>
+            <button onclick="testCheckStatus()">3. Check Extension Status</button>
+            <button onclick="clearLog()">Clear Log</button>
+        </div>
+        
+        <div class="section">
+            <h2>Diagnostic Information</h2>
+            <button onclick="showDiagnostics()">Show Diagnostics</button>
+            <div id="diagnostics"></div>
+        </div>
+        
+        <div class="section">
+            <h2>Activity Log</h2>
+            <div id="log" class="log"></div>
+        </div>
+    </div>
+    
+    <script>
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            const timestamp = new Date().toLocaleTimeString();
+            entry.innerHTML = `<strong>[${timestamp}]</strong> ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(`[${type}] ${message}`);
+        }
+        
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+            log('Log cleared', 'info');
+        }
+        
+        async function showDiagnostics() {
+            log('Gathering diagnostic information...', 'info');
+            
+            const diagnostics = {
+                browser: navigator.userAgent,
+                esteidAPI: typeof window.EstEID_PD !== 'undefined' ? 'Available' : 'NOT FOUND',
+                apiVersion: typeof window.EstEID_PD !== 'undefined' ? window.EstEID_PD.version : 'N/A',
+                apiMethods: typeof window.EstEID_PD !== 'undefined' ? Object.keys(window.EstEID_PD).filter(k => typeof window.EstEID_PD[k] === 'function') : []
+            };
+            
+            const diagDiv = document.getElementById('diagnostics');
+            diagDiv.innerHTML = '<pre>' + JSON.stringify(diagnostics, null, 2) + '</pre>';
+            
+            if (typeof window.EstEID_PD === 'undefined') {
+                log('❌ EstEID_PD API not found!', 'error');
+                log('The extension content script is not injected into this page.', 'error');
+                log('Make sure the extension is loaded and the page is reloaded.', 'error');
+            } else {
+                log('✅ EstEID_PD API is available', 'success');
+                log('Diagnostics displayed', 'success');
+            }
+        }
+        
+        async function testPing() {
+            log('Testing ping to native helper...', 'info');
+            
+            try {
+                // Check if API is available
+                if (typeof window.EstEID_PD === 'undefined') {
+                    log('❌ EstEID_PD API not found!', 'error');
+                    log('Please reload the page (F5) after loading the extension.', 'error');
+                    return;
+                }
+                
+                log('Calling EstEID_PD.checkStatus()...', 'info');
+                const response = await window.EstEID_PD.checkStatus();
+                
+                log('Response received:', 'info');
+                log('<pre>' + JSON.stringify(response, null, 2) + '</pre>', response.ok ? 'success' : 'error');
+                
+                if (response.ok && response.available) {
+                    log('✅ Native helper is responding!', 'success');
+                } else {
+                    log('❌ Native helper not available: ' + (response.error || 'Unknown error'), 'error');
+                    
+                    // Show detailed troubleshooting
+                    if (response.error && response.error.includes('not installed')) {
+                        log('💡 Troubleshooting: Check if native host is registered', 'info');
+                        log('Run in PowerShell: reg query "HKCU\\Software\\Mozilla\\NativeMessagingHosts\\ee.aarepuusepp.eid_helper"', 'info');
+                    }
+                }
+            } catch (error) {
+                log('❌ Error: ' + error.message, 'error');
+                log('<pre>' + error.stack + '</pre>', 'error');
+            }
+        }
+        
+        async function testReadCard() {
+            log('Testing card read...', 'info');
+            
+            try {
+                if (typeof window.EstEID_PD === 'undefined') {
+                    log('❌ EstEID_PD API not found!', 'error');
+                    return;
+                }
+                
+                log('Calling EstEID_PD.readPersonalData(false)...', 'info');
+                const response = await window.EstEID_PD.readPersonalData(false);
+                
+                log('Response received:', 'info');
+                log('<pre>' + JSON.stringify(response, null, 2) + '</pre>', response.ok ? 'success' : 'error');
+                
+                if (response.ok && response.data) {
+                    log(`✅ Card read successfully: ${response.data.givenName} ${response.data.surname}`, 'success');
+                    log(`Personal Code: ${response.data.personalCode}`, 'success');
+                    log(`Document: ${response.data.documentNr}`, 'success');
+                    log(`Source: ${response.data.source}`, 'success');
+                } else {
+                    log('❌ Failed to read card: ' + (response.error || 'Unknown error'), 'error');
+                }
+            } catch (error) {
+                log('❌ Error: ' + error.message, 'error');
+                log('<pre>' + error.stack + '</pre>', 'error');
+            }
+        }
+        
+        async function testCheckStatus() {
+            log('Checking extension status (same as testPing)...', 'info');
+            await testPing();
+        }
+        
+        // Auto-run diagnostics on load
+        window.addEventListener('load', () => {
+            log('Page loaded', 'info');
+            
+            // Wait a bit for content script to inject
+            setTimeout(() => {
+                showDiagnostics();
+                
+                // Auto-test after another second if API is available
+                setTimeout(() => {
+                    if (typeof window.EstEID_PD !== 'undefined') {
+                        log('Running automatic ping test...', 'info');
+                        testPing();
+                    } else {
+                        log('⚠️ Skipping auto-test: EstEID_PD API not available', 'error');
+                        log('Please reload the page (F5) if you just loaded the extension.', 'info');
+                    }
+                }, 1000);
+            }, 500);
+        });
+    </script>
+</body>
+</html>
+

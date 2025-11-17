@@ -1,0 +1,14 @@
+Windows Registry Editor Version 5.00
+
+; Unregister Estonian ID Card Personal Data Reader native host from all browsers
+; Double-click this file to remove registry entries for Chrome, Edge, and Firefox
+
+; Google Chrome
+[-HKEY_CURRENT_USER\Software\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_helper]
+
+; Microsoft Edge
+[-HKEY_CURRENT_USER\Software\Microsoft\Edge\NativeMessagingHosts\ee.aarepuusepp.eid_helper]
+
+; Mozilla Firefox
+[-HKEY_CURRENT_USER\Software\Mozilla\NativeMessagingHosts\ee.aarepuusepp.eid_helper]
+

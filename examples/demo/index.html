@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estonian ID Card Reader - Demo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+    
+    header {
+      background: linear-gradient(135deg, #0072CE 0%, #0052A3 100%);
+      color: white;
+      padding: 40px;
+      text-align: center;
+    }
+    
+    h1 {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+    
+    .subtitle {
+      font-size: 16px;
+      opacity: 0.9;
+    }
+    
+    main {
+      padding: 40px;
+    }
+    
+    .status {
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      border-left: 4px solid #6c757d;
+    }
+    
+    .status.ready {
+      background: #d4edda;
+      border-left-color: #28a745;
+    }
+    
+    .status.error {
+      background: #f8d7da;
+      border-left-color: #dc3545;
+    }
+    
+    .status h2 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+    
+    .actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+    
+    button {
+      padding: 14px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .btn-primary {
+      background: #0072CE;
+      color: white;
+    }
+    
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+    
+    .btn-success {
+      background: #28a745;
+      color: white;
+    }
+    
+    .results {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 30px;
+    }
+    
+    .results h2 {
+      font-size: 20px;
+      margin-bottom: 20px;
+      color: #0072CE;
+    }
+    
+    .data-grid {
+      display: grid;
+      gap: 16px;
+    }
+    
+    .data-item {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 12px;
+      padding: 12px;
+      background: white;
+      border-radius: 6px;
+    }
+    
+    .data-item label {
+      font-weight: 600;
+      color: #6c757d;
+    }
+    
+    .data-item span {
+      color: #333;
+      word-break: break-word;
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: #0072CE;
+      color: white;
+      border-radius: 16px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    
+    .code-block {
+      background: #2d2d2d;
+      color: #f8f8f2;
+      padding: 20px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin-bottom: 30px;
+    }
+    
+    .code-block pre {
+      margin: 0;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    
+    .examples {
+      margin-top: 40px;
+    }
+    
+    .examples h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #0072CE;
+    }
+    
+    .example {
+      margin-bottom: 30px;
+    }
+    
+    .example h3 {
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+    
+    footer {
+      background: #f8f9fa;
+      padding: 20px;
+      text-align: center;
+      color: #6c757d;
+      font-size: 14px;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.5s;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🇪🇪 Estonian ID Card Reader</h1>
+      <p class="subtitle">Demo: Read Personal Data from ID Card Chip</p>
+    </header>
+    
+    <main>
+      <!-- Status -->
+      <div id="status" class="status">
+        <h2 id="statusTitle">Checking Extension...</h2>
+        <p id="statusMessage">Please wait...</p>
+      </div>
+      
+      <!-- Actions -->
+      <div class="actions">
+        <button id="checkBtn" class="btn-primary">🔍 Check Status</button>
+        <button id="readBtn" class="btn-success" disabled>📇 Read ID Card</button>
+        <button id="clearBtn" class="btn-secondary" disabled>🗑️ Clear Cache</button>
+      </div>
+      
+      <!-- Results -->
+      <div id="results" class="results hidden">
+        <h2>Personal Data</h2>
+        <div class="data-grid">
+          <div class="data-item">
+            <label>Full Name:</label>
+            <span id="fullName">-</span>
+          </div>
+          <div class="data-item">
+            <label>Personal Code:</label>
+            <span id="personalCode">-</span>
+          </div>
+          <div class="data-item">
+            <label>Document Number:</label>
+            <span id="documentNr">-</span>
+          </div>
+          <div class="data-item">
+            <label>Citizenship:</label>
+            <span id="citizenship">-</span>
+          </div>
+          <div class="data-item">
+            <label>Sex:</label>
+            <span id="sex">-</span>
+          </div>
+          <div class="data-item">
+            <label>Birth Date:</label>
+            <span id="birthDate">-</span>
+          </div>
+          <div class="data-item">
+            <label>Expiry Date:</label>
+            <span id="expiryDate">-</span>
+          </div>
+          <div class="data-item">
+            <label>Issue Date:</label>
+            <span id="issueDate">-</span>
+          </div>
+          <div class="data-item">
+            <label>Data Source:</label>
+            <span id="source" class="badge">-</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Code Examples -->
+      <div class="examples">
+        <h2>Usage Examples</h2>
+        
+        <div class="example">
+          <h3>1. Basic Usage</h3>
+          <div class="code-block">
+            <pre>// Check if extension is available
+if (window.EstEID_PD) {
+  // Read personal data
+  const result = await EstEID_PD.readPersonalData();
+  
+  if (result.ok) {
+    console.log('Name:', result.data.givenName, result.data.surname);
+    console.log('Personal Code:', result.data.personalCode);
+  } else {
+    console.error('Error:', result.error);
+  }
+}</pre>
+          </div>
+        </div>
+        
+        <div class="example">
+          <h3>2. With Error Handling</h3>
+          <div class="code-block">
+            <pre>try {
+  const result = await EstEID_PD.readPersonalData({
+    useCache: false,  // Force fresh read
+    timeout: 30000    // 30 second timeout
+  });
+  
+  if (result.ok) {
+    // Use the data
+    document.getElementById('name').textContent = 
+      result.data.givenName + ' ' + result.data.surname;
+  }
+} catch (error) {
+  alert('Failed to read ID card: ' + error.message);
+}</pre>
+          </div>
+        </div>
+        
+        <div class="example">
+          <h3>3. Check Availability</h3>
+          <div class="code-block">
+            <pre>// Check if extension is loaded and ready
+const status = await EstEID_PD.checkStatus();
+
+if (status.ok && status.available) {
+  console.log('Extension is ready!');
+  // Show "Read ID Card" button
+} else {
+  console.warn('Extension not available:', status.error);
+  // Show installation instructions
+}</pre>
+          </div>
+        </div>
+      </div>
+    </main>
+    
+    <footer>
+      <p><strong>Estonian ID Card Personal Data Reader</strong></p>
+      <p>Extension Version: <span id="version">-</span></p>
+      <p><a href="https://github.com/aarepuusepp/web-eid-pd" target="_blank">Documentation & Source Code</a></p>
+    </footer>
+  </div>
+  
+  <script>
+    // Wait for extension to load
+    let extensionReady = false;
+    
+    window.addEventListener('esteid-pd-ready', (event) => {
+      console.log('EstEID-PD extension ready:', event.detail);
+      extensionReady = true;
+      document.getElementById('version').textContent = event.detail.version;
+      checkStatus();
+    });
+    
+    // Check status
+    async function checkStatus() {
+      const statusDiv = document.getElementById('status');
+      const statusTitle = document.getElementById('statusTitle');
+      const statusMessage = document.getElementById('statusMessage');
+      const readBtn = document.getElementById('readBtn');
+      const clearBtn = document.getElementById('clearBtn');
+      
+      if (!window.EstEID_PD) {
+        statusDiv.className = 'status error';
+        statusTitle.textContent = '❌ Extension Not Found';
+        statusMessage.textContent = 'Please install the Estonian ID Card Reader extension.';
+        return;
+      }
+      
+      try {
+        const status = await EstEID_PD.checkStatus();
+        
+        if (status.ok && status.available) {
+          statusDiv.className = 'status ready';
+          statusTitle.textContent = '✅ Ready to Read';
+          statusMessage.textContent = 'Extension is installed and native helper is available.';
+          readBtn.disabled = false;
+          clearBtn.disabled = false;
+          
+          if (status.cached) {
+            const ageSeconds = Math.round(status.cacheAge / 1000);
+            statusMessage.textContent += ` (Cached data available, ${ageSeconds}s old)`;
+          }
+        } else {
+          statusDiv.className = 'status error';
+          statusTitle.textContent = '⚠️ Native Helper Not Available';
+          statusMessage.textContent = status.error || 'Please install the native helper application.';
+        }
+      } catch (error) {
+        statusDiv.className = 'status error';
+        statusTitle.textContent = '❌ Error';
+        statusMessage.textContent = error.message;
+      }
+    }
+    
+    // Read personal data
+    async function readPersonalData() {
+      const resultsDiv = document.getElementById('results');
+      const readBtn = document.getElementById('readBtn');
+      
+      readBtn.disabled = true;
+      readBtn.textContent = '⏳ Reading...';
+      
+      try {
+        const result = await EstEID_PD.readPersonalData({ useCache: false });
+        
+        if (result.ok && result.data) {
+          // Show results
+          resultsDiv.classList.remove('hidden');
+          resultsDiv.classList.add('fade-in');
+          
+          const data = result.data;
+          document.getElementById('fullName').textContent = 
+            (data.givenName || '') + ' ' + (data.surname || '');
+          document.getElementById('personalCode').textContent = data.personalCode || '-';
+          document.getElementById('documentNr').textContent = data.documentNr || '-';
+          document.getElementById('citizenship').textContent = data.citizenship || '-';
+          document.getElementById('sex').textContent = data.sex || '-';
+          document.getElementById('birthDate').textContent = data.birthDate || '-';
+          document.getElementById('expiryDate').textContent = data.expiryDate || '-';
+          document.getElementById('issueDate').textContent = data.issueDate || '-';
+          document.getElementById('source').textContent = data.source || 'chip';
+          
+          // Update status
+          const statusDiv = document.getElementById('status');
+          const statusTitle = document.getElementById('statusTitle');
+          const statusMessage = document.getElementById('statusMessage');
+          statusDiv.className = 'status ready';
+          statusTitle.textContent = '✅ Read Successful';
+          statusMessage.textContent = 'Personal data has been read from the ID card.';
+        } else {
+          alert('Error: ' + (result.error || 'Failed to read personal data'));
+        }
+      } catch (error) {
+        alert('Error: ' + error.message);
+      } finally {
+        readBtn.disabled = false;
+        readBtn.textContent = '📇 Read ID Card';
+      }
+    }
+    
+    // Clear cache
+    async function clearCache() {
+      try {
+        await EstEID_PD.clearCache();
+        document.getElementById('results').classList.add('hidden');
+        
+        const statusDiv = document.getElementById('status');
+        const statusTitle = document.getElementById('statusTitle');
+        const statusMessage = document.getElementById('statusMessage');
+        statusDiv.className = 'status';
+        statusTitle.textContent = '🗑️ Cache Cleared';
+        statusMessage.textContent = 'Cached data has been removed.';
+        
+        setTimeout(checkStatus, 1000);
+      } catch (error) {
+        alert('Error: ' + error.message);
+      }
+    }
+    
+    // Event listeners
+    document.getElementById('checkBtn').addEventListener('click', checkStatus);
+    document.getElementById('readBtn').addEventListener('click', readPersonalData);
+    document.getElementById('clearBtn').addEventListener('click', clearCache);
+    
+    // Initial check
+    setTimeout(() => {
+      if (window.EstEID_PD) {
+        checkStatus();
+      } else {
+        const statusDiv = document.getElementById('status');
+        const statusTitle = document.getElementById('statusTitle');
+        const statusMessage = document.getElementById('statusMessage');
+        statusDiv.className = 'status error';
+        statusTitle.textContent = '❌ Extension Not Loaded';
+        statusMessage.textContent = 'The EstEID_PD extension is not installed or not loaded yet. Please install the extension and refresh this page.';
+      }
+    }, 1000);
+  </script>
+</body>
+</html>
+

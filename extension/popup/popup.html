@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estonian ID Card Reader</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <img src="../icons/icon48.png" alt="EstEID" class="logo">
+      <h1>Estonian ID Card Reader</h1>
+      <p class="subtitle">Personal Data from Chip</p>
+    </header>
+    
+    <main>
+      <!-- Status Section -->
+      <div id="status" class="status">
+        <div class="status-indicator" id="statusIndicator">
+          <span class="dot"></span>
+          <span id="statusText">Checking...</span>
+        </div>
+      </div>
+      
+      <!-- Mode Selection -->
+      <div class="mode-selection">
+        <label class="mode-label">Reading Mode:</label>
+        <div class="mode-toggle">
+          <input type="radio" id="modeContact" name="mode" value="contact" checked>
+          <label for="modeContact">Contact</label>
+          <input type="radio" id="modeNFC" name="mode" value="nfc">
+          <label for="modeNFC">NFC</label>
+        </div>
+      </div>
+      
+      <!-- CAN Input (for NFC mode) -->
+      <div id="canInput" class="can-input hidden">
+        <label for="can">CAN (Card Access Number):</label>
+        <input type="text" id="can" maxlength="6" pattern="[0-9]{6}" placeholder="6 digits from card">
+        <small>Enter the 6-digit CAN printed on your ID card</small>
+      </div>
+      
+      <!-- NFC Capability Notice -->
+      <div id="nfcNotice" class="notice hidden">
+        <p>⚠️ NFC/PACE not available in this build. Please use Contact mode.</p>
+      </div>
+      
+      <!-- Action Buttons -->
+      <div class="actions">
+        <button id="readBtn" class="btn btn-primary" disabled>
+          <span class="btn-icon">📇</span>
+          Read ID Card
+        </button>
+        <button id="clearBtn" class="btn btn-secondary">
+          <span class="btn-icon">🗑️</span>
+          Clear Cache
+        </button>
+      </div>
+      
+      <!-- Results Section -->
+      <div id="results" class="results hidden">
+        <h2>Personal Data</h2>
+        <div class="data-grid">
+          <div class="data-item">
+            <label>Name:</label>
+            <span id="name">-</span>
+          </div>
+          <div class="data-item">
+            <label>Personal Code:</label>
+            <span id="personalCode">-</span>
+          </div>
+          <div class="data-item">
+            <label>Document Number:</label>
+            <span id="documentNr">-</span>
+          </div>
+          <div class="data-item">
+            <label>Citizenship:</label>
+            <span id="citizenship">-</span>
+          </div>
+          <div class="data-item">
+            <label>Birth Date:</label>
+            <span id="birthDate">-</span>
+          </div>
+          <div class="data-item">
+            <label>Expiry Date:</label>
+            <span id="expiryDate">-</span>
+          </div>
+          <div class="data-item">
+            <label>Source:</label>
+            <span id="source" class="badge">-</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Error Section -->
+      <div id="error" class="error hidden">
+        <h3>⚠️ Error</h3>
+        <p id="errorMessage"></p>
+        <details>
+          <summary>Technical Details</summary>
+          <pre id="errorDetails"></pre>
+        </details>
+      </div>
+      
+      <!-- Help Section -->
+      <div class="help">
+        <details>
+          <summary>ℹ️ How to use</summary>
+          <p><strong>Contact Mode:</strong></p>
+          <ol>
+            <li>Insert your Estonian ID card into the reader</li>
+            <li>Click "Read ID Card" button</li>
+            <li>Personal data will be displayed</li>
+            <li>Data is cached for 5 minutes</li>
+          </ol>
+          <p><strong>NFC Mode:</strong></p>
+          <ol>
+            <li>Place your ID card on an NFC reader</li>
+            <li>Enter the 6-digit CAN from your card</li>
+            <li>Click "Read ID Card" button</li>
+            <li>Data is read using PACE protocol</li>
+          </ol>
+          <p><strong>Troubleshooting:</strong></p>
+          <ul>
+            <li>Make sure the card is properly inserted/placed</li>
+            <li>Check that PC/SC service is running</li>
+            <li>For NFC: verify CAN is correct</li>
+            <li>Try removing and reinserting the card</li>
+          </ul>
+        </details>
+      </div>
+    </main>
+    
+    <footer>
+      <div class="version-info">
+        <p><strong>Extension:</strong> <span id="extensionVersion">1.0.2</span></p>
+        <p><strong>Helper:</strong> <span id="helperVersion">checking...</span></p>
+      </div>
+      <p><a href="https://github.com/aarepuusepp/web-eid-pd" target="_blank">Documentation</a></p>
+    </footer>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>
+

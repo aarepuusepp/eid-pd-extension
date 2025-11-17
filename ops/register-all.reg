@@ -1,0 +1,20 @@
+Windows Registry Editor Version 5.00
+
+; Register Estonian ID Card Personal Data Reader native host for all browsers
+; Double-click this file to add registry entries for Chrome, Edge, and Firefox
+; 
+; NOTE: Update the paths below to match your installation location!
+; Default: C:\Program Files\eid-pd-reader\
+
+; Google Chrome
+[HKEY_CURRENT_USER\Software\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_helper]
+@="C:\\Program Files\\eid-pd-reader\\ee.aarepuusepp.eid_helper.json"
+
+; Microsoft Edge
+[HKEY_CURRENT_USER\Software\Microsoft\Edge\NativeMessagingHosts\ee.aarepuusepp.eid_helper]
+@="C:\\Program Files\\eid-pd-reader\\ee.aarepuusepp.eid_helper.json"
+
+; Mozilla Firefox
+[HKEY_CURRENT_USER\Software\Mozilla\NativeMessagingHosts\ee.aarepuusepp.eid_helper]
+@="C:\\Program Files\\eid-pd-reader\\ee.aarepuusepp.eid_helper.firefox.json"
+

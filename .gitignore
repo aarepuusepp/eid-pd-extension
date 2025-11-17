@@ -1,0 +1,30 @@
+# Build outputs
+dist/
+*.zip
+*.xpi
+*.crx
+
+# Node modules (if using npm tools)
+node_modules/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+
+# Extension private keys
+*.pem
+
+# Logs
+*.log
+

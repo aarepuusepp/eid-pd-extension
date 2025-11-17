@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estonian ID Card Extension Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .test-section {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .test-section h2 {
+            color: #2d3748;
+            font-size: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result-box {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .result-box pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .success-text {
+            color: #059669;
+        }
+        
+        .error-text {
+            color: #dc2626;
+        }
+        
+        .info-text {
+            color: #2563eb;
+        }
+        
+        .card-data {
+            background: white;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .card-data-row {
+            display: flex;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .card-data-row:last-child {
+            border-bottom: none;
+        }
+        
+        .card-data-label {
+            font-weight: 600;
+            color: #4a5568;
+            width: 150px;
+            flex-shrink: 0;
+        }
+        
+        .card-data-value {
+            color: #2d3748;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #f3f4f6;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .log-entry {
+            padding: 8px;
+            margin: 4px 0;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .log-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .log-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .log-error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .log-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🇪🇪 Estonian ID Card Extension Test</h1>
+        <p class="subtitle">Test the native helper and browser extension integration</p>
+        
+        <!-- Test 1: Check if API is available -->
+        <div class="test-section">
+            <h2>
+                <span>1. API Availability</span>
+                <span id="test1-status" class="status-badge status-pending">Pending</span>
+            </h2>
+            <button onclick="testAPIAvailability()">Test API</button>
+            <div id="test1-result"></div>
+        </div>
+        
+        <!-- Test 2: Check extension status -->
+        <div class="test-section">
+            <h2>
+                <span>2. Extension Status</span>
+                <span id="test2-status" class="status-badge status-pending">Pending</span>
+            </h2>
+            <button onclick="testExtensionStatus()">Check Status</button>
+            <div id="test2-result"></div>
+        </div>
+        
+        <!-- Test 3: Read card data (Contact) -->
+        <div class="test-section">
+            <h2>
+                <span>3. Read ID Card (Contact Mode)</span>
+                <span id="test3-status" class="status-badge status-pending">Pending</span>
+            </h2>
+            <button onclick="testReadCard()">Read Card</button>
+            <button onclick="testReadCardWithCache()">Read (Use Cache)</button>
+            <button onclick="testClearCache()">Clear Cache</button>
+            <div id="test3-result"></div>
+        </div>
+        
+        <!-- Test 4: Read card data (NFC) -->
+        <div class="test-section">
+            <h2>
+                <span>4. Read ID Card (NFC Mode)</span>
+                <span id="test4-status" class="status-badge status-pending">Pending</span>
+            </h2>
+            <div style="margin-bottom: 15px;">
+                <label for="canInput" style="display: block; margin-bottom: 5px; font-weight: 600; color: #4a5568;">
+                    CAN (Card Access Number):
+                </label>
+                <input 
+                    type="text" 
+                    id="canInput" 
+                    maxlength="6" 
+                    pattern="[0-9]{6}" 
+                    placeholder="6 digits from card"
+                    style="padding: 8px 12px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 14px; width: 200px; font-family: 'Courier New', monospace;"
+                >
+                <small style="display: block; margin-top: 5px; color: #718096;">
+                    Enter the 6-digit CAN printed on your ID card
+                </small>
+            </div>
+            <button onclick="testReadCardNFC()">Read Card via NFC</button>
+            <div id="test4-result"></div>
+        </div>
+        
+        <!-- Test 5: Console log -->
+        <div class="test-section">
+            <h2>
+                <span>5. Activity Log</span>
+            </h2>
+            <button onclick="clearLog()">Clear Log</button>
+            <div id="log-container" class="result-box" style="max-height: 200px;"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Logging utility
+        function log(message, type = 'info') {
+            const logContainer = document.getElementById('log-container');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            const timestamp = new Date().toLocaleTimeString();
+            entry.textContent = `[${timestamp}] ${message}`;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+        
+        function clearLog() {
+            document.getElementById('log-container').innerHTML = '';
+            log('Log cleared', 'info');
+        }
+        
+        function updateStatus(testId, status) {
+            const badge = document.getElementById(`test${testId}-status`);
+            badge.className = `status-badge status-${status}`;
+            badge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+        }
+        
+        function showResult(testId, content, isError = false) {
+            const resultDiv = document.getElementById(`test${testId}-result`);
+            resultDiv.innerHTML = `<div class="result-box"><pre class="${isError ? 'error-text' : 'success-text'}">${content}</pre></div>`;
+        }
+        
+        function showCardData(testId, data) {
+            const resultDiv = document.getElementById(`test${testId}-result`);
+            const html = `
+                <div class="card-data">
+                    <div class="card-data-row">
+                        <div class="card-data-label">Name:</div>
+                        <div class="card-data-value">${data.givenName} ${data.surname}</div>
+                    </div>
+                    <div class="card-data-row">
+                        <div class="card-data-label">Personal Code:</div>
+                        <div class="card-data-value">${data.personalCode}</div>
+                    </div>
+                    <div class="card-data-row">
+                        <div class="card-data-label">Document Number:</div>
+                        <div class="card-data-value">${data.documentNr}</div>
+                    </div>
+                    <div class="card-data-row">
+                        <div class="card-data-label">Citizenship:</div>
+                        <div class="card-data-value">${data.citizenship}</div>
+                    </div>
+                    <div class="card-data-row">
+                        <div class="card-data-label">Birth Date:</div>
+                        <div class="card-data-value">${data.birthDate}</div>
+                    </div>
+                    <div class="card-data-row">
+                        <div class="card-data-label">Expiry Date:</div>
+                        <div class="card-data-value">${data.expiryDate}</div>
+                    </div>
+                    <div class="card-data-row">
+                        <div class="card-data-label">Issue Date:</div>
+                        <div class="card-data-value">${data.issueDate}</div>
+                    </div>
+                    <div class="card-data-row">
+                        <div class="card-data-label">Source:</div>
+                        <div class="card-data-value">${data.source}</div>
+                    </div>
+                </div>
+            `;
+            resultDiv.innerHTML = html;
+        }
+        
+        // Test 1: Check if API is available
+        async function testAPIAvailability() {
+            log('Testing API availability...', 'info');
+            try {
+                if (typeof window.EstEID_PD === 'undefined') {
+                    updateStatus(1, 'error');
+                    showResult(1, '❌ EstEID_PD API not found!\n\nPossible causes:\n1. Extension not installed\n2. Content script not injected\n3. Page needs to be reloaded', true);
+                    log('API not available', 'error');
+                    return;
+                }
+                
+                const api = window.EstEID_PD;
+                const info = {
+                    available: api.isAvailable(),
+                    version: api.version,
+                    methods: Object.keys(api).filter(k => typeof api[k] === 'function')
+                };
+                
+                updateStatus(1, 'success');
+                showResult(1, `✅ EstEID_PD API is available!\n\nVersion: ${info.version}\nAvailable: ${info.available}\n\nMethods:\n${info.methods.map(m => `  - ${m}()`).join('\n')}`);
+                log('API is available', 'success');
+            } catch (error) {
+                updateStatus(1, 'error');
+                showResult(1, `❌ Error: ${error.message}`, true);
+                log(`API test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        // Test 2: Check extension status
+        async function testExtensionStatus() {
+            log('Checking extension status...', 'info');
+            try {
+                if (typeof window.EstEID_PD === 'undefined') {
+                    updateStatus(2, 'error');
+                    showResult(2, '❌ EstEID_PD API not found!', true);
+                    log('API not available for status check', 'error');
+                    return;
+                }
+                
+                log('Calling checkStatus()...', 'info');
+                const status = await window.EstEID_PD.checkStatus();
+                
+                if (status.ok && status.available) {
+                    updateStatus(2, 'success');
+                    showResult(2, `✅ Extension is working!\n\n${JSON.stringify(status, null, 2)}`);
+                    log('Extension status: OK', 'success');
+                } else {
+                    updateStatus(2, 'error');
+                    showResult(2, `⚠️ Extension not ready\n\n${JSON.stringify(status, null, 2)}`, true);
+                    log(`Extension status: ${status.error || 'Not available'}`, 'warning');
+                }
+            } catch (error) {
+                updateStatus(2, 'error');
+                showResult(2, `❌ Error: ${error.message}\n\n${error.stack}`, true);
+                log(`Status check failed: ${error.message}`, 'error');
+            }
+        }
+        
+        // Test 3: Read card data
+        async function testReadCard() {
+            log('Reading ID card (no cache)...', 'info');
+            try {
+                if (typeof window.EstEID_PD === 'undefined') {
+                    updateStatus(3, 'error');
+                    showResult(3, '❌ EstEID_PD API not found!', true);
+                    log('API not available for card reading', 'error');
+                    return;
+                }
+                
+                updateStatus(3, 'pending');
+                showResult(3, '⏳ Reading card data...\n\nPlease wait...');
+                
+                log('Calling readPersonalData(false)...', 'info');
+                const result = await window.EstEID_PD.readPersonalData(false);
+                
+                if (result.ok && result.data) {
+                    updateStatus(3, 'success');
+                    showCardData(3, result.data);
+                    log(`Card read successfully: ${result.data.givenName} ${result.data.surname}`, 'success');
+                } else {
+                    updateStatus(3, 'error');
+                    showResult(3, `❌ Failed to read card\n\nError: ${result.error}\n\n${JSON.stringify(result, null, 2)}`, true);
+                    log(`Card read failed: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                updateStatus(3, 'error');
+                showResult(3, `❌ Error: ${error.message}\n\n${error.stack}`, true);
+                log(`Card read error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testReadCardWithCache() {
+            log('Reading ID card (with cache)...', 'info');
+            try {
+                if (typeof window.EstEID_PD === 'undefined') {
+                    updateStatus(3, 'error');
+                    showResult(3, '❌ EstEID_PD API not found!', true);
+                    return;
+                }
+                
+                updateStatus(3, 'pending');
+                showResult(3, '⏳ Reading card data (cache enabled)...\n\nPlease wait...');
+                
+                log('Calling readPersonalData(true)...', 'info');
+                const result = await window.EstEID_PD.readPersonalData(true);
+                
+                if (result.ok && result.data) {
+                    updateStatus(3, 'success');
+                    showCardData(3, result.data);
+                    log(`Card read successfully (cached: ${result.cached || false})`, 'success');
+                } else {
+                    updateStatus(3, 'error');
+                    showResult(3, `❌ Failed to read card\n\nError: ${result.error}`, true);
+                    log(`Card read failed: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                updateStatus(3, 'error');
+                showResult(3, `❌ Error: ${error.message}`, true);
+                log(`Card read error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testClearCache() {
+            log('Clearing cache...', 'info');
+            try {
+                if (typeof window.EstEID_PD === 'undefined') {
+                    log('API not available', 'error');
+                    return;
+                }
+                
+                const result = await window.EstEID_PD.clearCache();
+                if (result.ok) {
+                    log('Cache cleared successfully', 'success');
+                    showResult(3, '✅ Cache cleared');
+                } else {
+                    log(`Cache clear failed: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                log(`Cache clear error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Test 4: Read card data via NFC
+        async function testReadCardNFC() {
+            log('Reading ID card via NFC...', 'info');
+            try {
+                if (typeof window.EstEID_PD === 'undefined') {
+                    updateStatus(4, 'error');
+                    showResult(4, '❌ EstEID_PD API not found!', true);
+                    log('API not available for NFC card reading', 'error');
+                    return;
+                }
+                
+                const canInput = document.getElementById('canInput');
+                const can = canInput.value;
+                
+                if (!/^[0-9]{6}$/.test(can)) {
+                    updateStatus(4, 'error');
+                    showResult(4, '❌ Invalid CAN\n\nPlease enter a valid 6-digit CAN from your ID card.', true);
+                    log('Invalid CAN format', 'error');
+                    return;
+                }
+                
+                updateStatus(4, 'pending');
+                showResult(4, '⏳ Reading card via NFC with PACE...\n\nPlease wait...');
+                
+                log(`Calling readPersonalData({ mode: 'nfc', can: '******' })...`, 'info');
+                const result = await window.EstEID_PD.readPersonalData({ mode: 'nfc', can: can });
+                
+                if (result.ok && result.data) {
+                    updateStatus(4, 'success');
+                    showCardData(4, result.data);
+                    log(`NFC card read successfully: ${result.data.givenName} ${result.data.surname}`, 'success');
+                } else {
+                    updateStatus(4, 'error');
+                    showResult(4, `❌ Failed to read card via NFC\n\nError: ${result.error}\n\n${JSON.stringify(result, null, 2)}`, true);
+                    log(`NFC card read failed: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                updateStatus(4, 'error');
+                showResult(4, `❌ Error: ${error.message}\n\n${error.stack}`, true);
+                log(`NFC card read error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Auto-run first test on load
+        window.addEventListener('load', () => {
+            log('Page loaded', 'info');
+            setTimeout(() => {
+                log('Running automatic API availability test...', 'info');
+                testAPIAvailability();
+            }, 500);
+        });
+    </script>
+</body>
+</html>
+
