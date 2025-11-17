@@ -1,6 +1,6 @@
 # eid-pd-extension - Estonian ID Card Browser Extension
 
-Browser extension that provides JavaScript API for reading personal data from Estonian ID cards.
+Browser extension that provides JavaScript API for reading personal data from Estonian ID cards via the native eid-pd-reader component.
 
 ## Overview
 
