@@ -52,6 +52,11 @@ For more information, see FIREFOX-DISTRIBUTION.md
 
 $ErrorActionPreference = "Stop"
 
+# Resolve project root (parent of ops/ directory)
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$ProjectRoot = Split-Path -Parent $ScriptDir
+Push-Location $ProjectRoot
+
 Write-Host "`n╔══════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
 Write-Host "║          Firefox Extension Signing Tool                      ║" -ForegroundColor Cyan
 Write-Host "╚══════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
@@ -215,4 +220,6 @@ Write-Host "      • Update install.cmd to include extension" -ForegroundColor 
 Write-Host "`n📚 Documentation:" -ForegroundColor Cyan
 Write-Host "   See FIREFOX-DISTRIBUTION.md for complete guide" -ForegroundColor White
 Write-Host ""
+
+Pop-Location
 

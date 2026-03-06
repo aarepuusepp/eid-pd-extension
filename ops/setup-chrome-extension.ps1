@@ -46,14 +46,14 @@ if (-not $isAdmin) {
 }
 
 # Update host manifest
-$manifestPath = "C:\Program Files\eid-pd-reader\ee.aarepuusepp.eid_helper.json"
+$manifestPath = "C:\Program Files\eid-pd-reader\ee.aarepuusepp.eid_pd_reader.json"
 
 Write-Host "`nUpdating host manifest..." -ForegroundColor Yellow
 Write-Host "Path: $manifestPath" -ForegroundColor Gray
 
 try {
     $manifest = @{
-        name = "ee.aarepuusepp.eid_helper"
+        name = "ee.aarepuusepp.eid_pd_reader"
         description = "Estonian ID Card Personal Data Reader"
         path = "C:\\Program Files\\eid-pd-reader\\eid-pd-reader.exe"
         type = "stdio"
@@ -114,7 +114,7 @@ Write-Host "`nChecking registry..." -ForegroundColor Yellow
 $registryFound = $false
 
 # Check HKCU (Current User) - where install.cmd registers
-$regPathHKCU = "HKCU:\SOFTWARE\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_helper"
+$regPathHKCU = "HKCU:\SOFTWARE\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_pd_reader"
 try {
     $regValue = Get-ItemProperty -Path $regPathHKCU -Name "(Default)" -ErrorAction Stop
     Write-Host "✓ Registry entry found (HKCU)" -ForegroundColor Green
@@ -122,7 +122,7 @@ try {
     $registryFound = $true
 } catch {
     # Try HKLM (Local Machine)
-    $regPathHKLM = "HKLM:\SOFTWARE\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_helper"
+    $regPathHKLM = "HKLM:\SOFTWARE\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_pd_reader"
     try {
         $regValue = Get-ItemProperty -Path $regPathHKLM -Name "(Default)" -ErrorAction Stop
         Write-Host "✓ Registry entry found (HKLM)" -ForegroundColor Green
@@ -140,7 +140,7 @@ Write-Host "1. Open edge://extensions/ (or chrome://extensions/)" -ForegroundCol
 Write-Host "2. Find 'Estonian ID Card Personal Data Reader'" -ForegroundColor White
 Write-Host "3. Click the 'Reload' button (circular arrow icon)" -ForegroundColor White
 Write-Host "4. Click the extension icon in toolbar" -ForegroundColor White
-Write-Host "5. Verify it shows: Helper: 1.0.2 (not 'not available')" -ForegroundColor White
+Write-Host "5. Verify it shows: Helper: 2.0.0 (not 'not available')" -ForegroundColor White
 
 Write-Host "`n✅ Setup complete!" -ForegroundColor Green
 Write-Host "If you still see 'Native helper not available', try:" -ForegroundColor Yellow

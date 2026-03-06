@@ -49,7 +49,7 @@ async function callNativeHelper(message) {
 
 /**
  * Read personal data from ID card
- * @param {Object} options - Reading options (fids, useCache, mode, can)
+ * @param {Object} options - Reading options (fids, useCache, mode, can, retry)
  * @returns {Promise<Object>} Personal data or error
  */
 async function readPersonalData(options = {}) {
@@ -62,10 +62,8 @@ async function readPersonalData(options = {}) {
     }
   }
   
-  // Call native helper
   let message;
   if (options.mode === 'nfc') {
-    // NFC mode with PACE
     if (!options.can) {
       return {
         ok: false,
@@ -77,8 +75,10 @@ async function readPersonalData(options = {}) {
       command: 'readPersonalDataNFC',
       can: options.can
     };
+    if (options.retry && options.retry > 0) {
+      message.retry = options.retry;
+    }
   } else {
-    // Contact mode (default)
     message = {
       command: 'getPersonalData',
       fids: options.fids || {}
@@ -87,7 +87,6 @@ async function readPersonalData(options = {}) {
   
   const response = await callNativeHelper(message);
   
-  // Handle card not found error with user-friendly message
   if (!response.ok && response.error && response.error.includes('CARD_NOT_FOUND')) {
     return {
       ok: false,
@@ -96,7 +95,6 @@ async function readPersonalData(options = {}) {
     };
   }
   
-  // Handle PACE-specific errors
   if (!response.ok && response.error) {
     if (response.error.includes('PACE not available')) {
       return {
@@ -123,6 +121,21 @@ async function readPersonalData(options = {}) {
     console.log('[EstEID-PD] Data cached');
   }
   
+  return response;
+}
+
+/**
+ * Read personal data from all available readers
+ * @param {Object} options - Reading options (fids)
+ * @returns {Promise<Object>} Multi-reader results
+ */
+async function readAllReaders(options = {}) {
+  const message = {
+    command: 'readAllReaders',
+    fids: options.fids || {}
+  };
+  
+  const response = await callNativeHelper(message);
   return response;
 }
 
@@ -220,17 +233,33 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
   
   if (request.type === 'EID_PD_READ_NFC') {
-    // Read personal data via NFC
     (async () => {
       try {
         const result = await readPersonalData({ 
           mode: 'nfc', 
           can: request.can,
+          retry: request.retry,
           useCache: false 
         });
         sendResponse(result);
       } catch (error) {
         console.error('[EstEID-PD] Error reading personal data via NFC:', error);
+        sendResponse({ 
+          ok: false, 
+          error: error.message || 'Unknown error occurred'
+        });
+      }
+    })();
+    return true;
+  }
+  
+  if (request.type === 'EID_PD_READ_ALL') {
+    (async () => {
+      try {
+        const result = await readAllReaders(request.options || {});
+        sendResponse(result);
+      } catch (error) {
+        console.error('[EstEID-PD] Error reading from all readers:', error);
         sendResponse({ 
           ok: false, 
           error: error.message || 'Unknown error occurred'

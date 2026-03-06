@@ -1,14 +1,25 @@
 # Package the browser extension for distribution
 # Creates a .zip file ready for Chrome Web Store or manual installation
+# Can be run from any directory (resolves paths relative to script location)
 
 param(
-    [string]$OutputDir = "dist",
+    [string]$OutputDir = "",
     [switch]$IncludeIcons = $false
 )
 
 $ErrorActionPreference = "Stop"
 
+# Resolve project root (parent of ops/ directory)
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$ProjectRoot = Split-Path -Parent $ScriptDir
+Push-Location $ProjectRoot
+
+if ([string]::IsNullOrEmpty($OutputDir)) {
+    $OutputDir = "dist"
+}
+
 Write-Host "=== Packaging Browser Extension ===" -ForegroundColor Cyan
+Write-Host "Project root: $ProjectRoot" -ForegroundColor Gray
 Write-Host ""
 
 # Get extension version from manifest
@@ -40,9 +51,13 @@ $files = @(
     "extension/popup/popup.js"
 )
 
-# Check if icons exist
-$iconsExist = Test-Path "extension/icons/icon16.png"
-if ($iconsExist -or $IncludeIcons) {
+# Check if icons exist (SVG or PNG)
+$iconsSvgExist = Test-Path "extension/icons/icon.svg"
+$iconsPngExist = Test-Path "extension/icons/icon16.png"
+if ($iconsSvgExist) {
+    $files += @("extension/icons/icon.svg")
+}
+if ($iconsPngExist -or $IncludeIcons) {
     $files += @(
         "extension/icons/icon16.png",
         "extension/icons/icon32.png",
@@ -63,8 +78,8 @@ Write-Host "Version: $version" -ForegroundColor Cyan
 Write-Host "Size: $([math]::Round((Get-Item $outputFile).Length / 1KB, 2)) KB" -ForegroundColor Cyan
 Write-Host ""
 
-if (!$iconsExist) {
-    Write-Host "⚠️  Warning: Icons not found. Extension will use default icons." -ForegroundColor Yellow
+if (!$iconsSvgExist -and !$iconsPngExist) {
+    Write-Host "Warning: Icons not found. Extension will use default icons." -ForegroundColor Yellow
     Write-Host "   Run 'extension/icons/generate-icons.ps1' to create icons." -ForegroundColor Gray
     Write-Host ""
 }
@@ -78,4 +93,6 @@ Write-Host "4. Drag and drop the .zip file onto the extensions page" -Foreground
 Write-Host ""
 
 Write-Host "Extension ID will be generated on first load." -ForegroundColor Cyan
-Write-Host "Copy the ID and update host-manifests/ee.aarepuusepp.eid_helper.json" -ForegroundColor Cyan
+Write-Host "Copy the ID and update ee.aarepuusepp.eid_pd_reader.json" -ForegroundColor Cyan
+
+Pop-Location

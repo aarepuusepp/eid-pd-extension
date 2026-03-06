@@ -418,6 +418,93 @@ footer a:hover {
   font-size: 13px;
 }
 
+/* Timing Info */
+.timing-info {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding: 6px 8px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  font-size: 11px;
+  color: #6c757d;
+  font-family: 'Courier New', monospace;
+}
+
+/* Retry Input */
+.retry-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.retry-input label {
+  font-size: 12px;
+  color: #856404;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.retry-input input[type="number"] {
+  width: 60px;
+  padding: 4px 8px;
+  border: 1px solid #ffc107;
+  border-radius: 4px;
+  font-size: 13px;
+  text-align: center;
+}
+
+/* Multi-Reader Results */
+.multi-results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.reader-card {
+  padding: 10px;
+  border-radius: 6px;
+  border-left: 3px solid #6c757d;
+  background: #f8f9fa;
+}
+
+.reader-card.reader-success {
+  border-left-color: #28a745;
+}
+
+.reader-card.reader-error {
+  border-left-color: #dc3545;
+}
+
+.reader-name {
+  font-weight: 600;
+  font-size: 12px;
+  color: #495057;
+  margin-bottom: 4px;
+  display: inline;
+}
+
+.reader-duration {
+  font-size: 11px;
+  color: #6c757d;
+  font-family: 'Courier New', monospace;
+  margin-left: 8px;
+}
+
+.reader-data {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.reader-error-msg {
+  font-size: 12px;
+  color: #dc3545;
+  margin-top: 4px;
+}
+
 /* Utilities */
 .hidden {
   display: none !important;

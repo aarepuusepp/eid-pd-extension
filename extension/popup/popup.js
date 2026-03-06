@@ -8,13 +8,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   const readBtn = document.getElementById('readBtn');
   const clearBtn = document.getElementById('clearBtn');
   const resultsDiv = document.getElementById('results');
+  const multiResultsDiv = document.getElementById('multiResults');
   const errorDiv = document.getElementById('error');
   const extensionVersionSpan = document.getElementById('extensionVersion');
   const helperVersionSpan = document.getElementById('helperVersion');
   const modeContact = document.getElementById('modeContact');
   const modeNFC = document.getElementById('modeNFC');
+  const modeAll = document.getElementById('modeAll');
   const canInputDiv = document.getElementById('canInput');
   const canInput = document.getElementById('can');
+  const retryInput = document.getElementById('retryCount');
   const nfcNotice = document.getElementById('nfcNotice');
   
   let nfcSupported = false;
@@ -80,10 +83,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   
   /**
-   * Show results
+   * Show single-reader results
    */
-  function showResults(data) {
+  function showResults(data, response) {
     resultsDiv.classList.remove('hidden');
+    multiResultsDiv.classList.add('hidden');
     errorDiv.classList.add('hidden');
     
     document.getElementById('name').textContent = 
@@ -94,6 +98,66 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('birthDate').textContent = data.birthDate || '-';
     document.getElementById('expiryDate').textContent = data.expiryDate || '-';
     document.getElementById('source').textContent = data.source || 'chip';
+    
+    if (response && response.timestamp) {
+      document.getElementById('timestamp').textContent = response.timestamp;
+      document.getElementById('duration').textContent = response.duration || '';
+      document.getElementById('timingInfo').classList.remove('hidden');
+    }
+  }
+  
+  /**
+   * Show multi-reader results
+   */
+  function showMultiResults(response) {
+    multiResultsDiv.classList.remove('hidden');
+    resultsDiv.classList.add('hidden');
+    errorDiv.classList.add('hidden');
+    
+    const list = document.getElementById('multiResultsList');
+    while (list.firstChild) { list.removeChild(list.firstChild); }
+    
+    (response.results || []).forEach(result => {
+      const card = document.createElement('div');
+      card.className = 'reader-card' + (result.data ? ' reader-success' : ' reader-error');
+      
+      const nameDiv = document.createElement('div');
+      nameDiv.className = 'reader-name';
+      nameDiv.textContent = result.reader;
+      card.appendChild(nameDiv);
+      
+      if (result.duration) {
+        const durationSpan = document.createElement('span');
+        durationSpan.className = 'reader-duration';
+        durationSpan.textContent = result.duration;
+        card.appendChild(durationSpan);
+      }
+      
+      if (result.data) {
+        const dataDiv = document.createElement('div');
+        dataDiv.className = 'reader-data';
+        const fullName = document.createElement('span');
+        fullName.textContent = (result.data.givenName || '') + ' ' + (result.data.surname || '');
+        const idCode = document.createElement('span');
+        idCode.textContent = result.data.personalCode || '';
+        dataDiv.appendChild(fullName);
+        dataDiv.appendChild(idCode);
+        card.appendChild(dataDiv);
+      } else if (result.error) {
+        const errDiv = document.createElement('div');
+        errDiv.className = 'reader-error-msg';
+        errDiv.textContent = result.error;
+        card.appendChild(errDiv);
+      }
+      
+      list.appendChild(card);
+    });
+    
+    if (response.timestamp) {
+      document.getElementById('multiTimestamp').textContent = response.timestamp;
+      document.getElementById('multiDuration').textContent = response.duration || '';
+      document.getElementById('multiTimingInfo').classList.remove('hidden');
+    }
   }
   
   /**
@@ -131,6 +195,7 @@ document.addEventListener('DOMContentLoaded', async () => {
    */
   function updateModeUI() {
     const isNFC = modeNFC.checked;
+    const isAll = modeAll.checked;
     
     if (isNFC) {
       canInputDiv.classList.remove('hidden');
@@ -139,7 +204,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         readBtn.disabled = true;
       } else {
         nfcNotice.classList.add('hidden');
-        // Enable read button only if CAN is valid
         validateCAN();
       }
     } else {
@@ -147,6 +211,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       nfcNotice.classList.add('hidden');
       readBtn.disabled = false;
     }
+    
+    readBtn.textContent = isAll ? 'Read All Readers' : 'Read ID Card';
   }
   
   /**
@@ -171,13 +237,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     readBtn.disabled = true;
     errorDiv.classList.add('hidden');
     resultsDiv.classList.add('hidden');
+    multiResultsDiv.classList.add('hidden');
     
     try {
       const isNFC = modeNFC.checked;
+      const isAll = modeAll.checked;
       let response;
       
-      if (isNFC) {
-        // NFC mode
+      if (isAll) {
+        response = await chrome.runtime.sendMessage({ 
+          type: 'EID_PD_READ_ALL',
+          options: {}
+        });
+        
+        if (response.ok && response.results) {
+          const successCount = response.results.filter(r => r.data).length;
+          const statusMsg = 'Read ' + successCount + '/' + response.results.length + ' readers';
+          updateStatus('ready', statusMsg + (response.duration ? ' in ' + response.duration : ''));
+          showMultiResults(response);
+        } else {
+          updateStatus('error', 'Read failed');
+          showError(
+            response.error || 'Failed to read from readers',
+            response.details || 'Make sure cards are inserted.'
+          );
+        }
+      } else if (isNFC) {
         if (!validateCAN()) {
           showError('Invalid CAN', 'Please enter a valid 6-digit CAN from your ID card.');
           readBtn.disabled = false;
@@ -186,25 +271,36 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         response = await chrome.runtime.sendMessage({ 
           type: 'EID_PD_READ_NFC',
-          can: canInput.value
+          can: canInput.value,
+          retry: parseInt(retryInput.value) || 3
         });
+        
+        if (response.ok && response.data) {
+          updateStatus('ready', 'Read successful' + (response.duration ? ' in ' + response.duration : ''));
+          showResults(response.data, response);
+        } else {
+          updateStatus('error', 'Read failed');
+          showError(
+            response.error || 'Failed to read personal data',
+            response.details || 'Make sure the ID card is placed on the NFC reader.'
+          );
+        }
       } else {
-        // Contact mode
         response = await chrome.runtime.sendMessage({ 
           type: 'EID_PD_READ',
-          options: { useCache: false } // Always read fresh in popup
+          options: { useCache: false }
         });
-      }
-      
-      if (response.ok && response.data) {
-        updateStatus('ready', 'Read successful');
-        showResults(response.data);
-      } else {
-        updateStatus('error', 'Read failed');
-        showError(
-          response.error || 'Failed to read personal data',
-          response.details || 'Make sure the ID card is inserted/placed properly.'
-        );
+        
+        if (response.ok && response.data) {
+          updateStatus('ready', 'Read successful' + (response.duration ? ' in ' + response.duration : ''));
+          showResults(response.data, response);
+        } else {
+          updateStatus('error', 'Read failed');
+          showError(
+            response.error || 'Failed to read personal data',
+            response.details || 'Make sure the ID card is inserted properly.'
+          );
+        }
       }
     } catch (error) {
       updateStatus('error', 'Read failed');
@@ -212,7 +308,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     } finally {
       readBtn.disabled = false;
       if (modeNFC.checked) {
-        validateCAN(); // Re-validate to set correct button state
+        validateCAN();
       }
     }
   }
@@ -239,6 +335,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   clearBtn.addEventListener('click', clearCache);
   modeContact.addEventListener('change', updateModeUI);
   modeNFC.addEventListener('change', updateModeUI);
+  modeAll.addEventListener('change', updateModeUI);
   canInput.addEventListener('input', validateCAN);
   
   // Initial status check and mode UI

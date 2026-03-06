@@ -4,8 +4,8 @@ Windows Registry Editor Version 5.00
 ; Double-click this file to add the registry entry
 ; 
 ; NOTE: Update the path below to match your installation location!
-; Default: C:\Program Files\eid-pd-reader\ee.aarepuusepp.eid_helper.json
+; Default: C:\Program Files\eid-pd-reader\ee.aarepuusepp.eid_pd_reader.json
 
-[HKEY_CURRENT_USER\Software\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_helper]
-@="C:\\Program Files\\eid-pd-reader\\ee.aarepuusepp.eid_helper.json"
+[HKEY_CURRENT_USER\Software\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_pd_reader]
+@="C:\\Program Files\\eid-pd-reader\\ee.aarepuusepp.eid_pd_reader.json"
 

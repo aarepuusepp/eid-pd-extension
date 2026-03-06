@@ -1,13 +1,24 @@
 # Package the Firefox browser extension for distribution
+# Can be run from any directory (resolves paths relative to script location)
 
 param(
-    [string]$OutputDir = "dist",
+    [string]$OutputDir = "",
     [switch]$IncludeIcons = $false
 )
 
 $ErrorActionPreference = "Stop"
 
+# Resolve project root (parent of ops/ directory)
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$ProjectRoot = Split-Path -Parent $ScriptDir
+Push-Location $ProjectRoot
+
+if ([string]::IsNullOrEmpty($OutputDir)) {
+    $OutputDir = "dist"
+}
+
 Write-Host "=== Packaging Firefox Extension ===" -ForegroundColor Cyan
+Write-Host "Project root: $ProjectRoot" -ForegroundColor Gray
 Write-Host ""
 
 # Get extension version from manifest
@@ -49,9 +60,8 @@ Copy-Item "extension/web-eid-fallback.js" "$tempDir/web-eid-fallback.js"
 # Copy popup
 Copy-Item "extension/popup" "$tempDir/popup" -Recurse
 
-# Copy icons if they exist
-$iconsExist = Test-Path "extension/icons/icon16.png"
-if ($iconsExist -or $IncludeIcons) {
+# Copy icons if they exist (SVG or PNG)
+if (Test-Path "extension/icons") {
     Copy-Item "extension/icons" "$tempDir/icons" -Recurse
 }
 
@@ -70,12 +80,6 @@ Write-Host "Version: $version" -ForegroundColor Cyan
 Write-Host "Size: $([math]::Round((Get-Item $outputFile).Length / 1KB, 2)) KB" -ForegroundColor Cyan
 Write-Host ""
 
-if (!$iconsExist) {
-    Write-Host "⚠️  Warning: Icons not found. Extension will use default icons." -ForegroundColor Yellow
-    Write-Host "   Run 'extension/icons/generate-icons.ps1' to create icons." -ForegroundColor Gray
-    Write-Host ""
-}
-
 Write-Host "To install in Firefox:" -ForegroundColor Yellow
 Write-Host "1. Open about:debugging#/runtime/this-firefox" -ForegroundColor Gray
 Write-Host "2. Click 'Load Temporary Add-on...'" -ForegroundColor Gray
@@ -87,5 +91,7 @@ Write-Host "2. Or use web-ext: web-ext sign --api-key=KEY --api-secret=SECRET" -
 Write-Host ""
 
 Write-Host "Don't forget to register the native host:" -ForegroundColor Cyan
-Write-Host ".\host-manifests\windows\registry-install-firefox.cmd" -ForegroundColor Gray
+Write-Host "Run install-reader.cmd from the eid-pd-reader build directory" -ForegroundColor Gray
+
+Pop-Location
 

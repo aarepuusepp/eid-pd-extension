@@ -100,6 +100,8 @@
     
     if (message.type === 'READ_PERSONAL_DATA_RESPONSE') {
       resolve(message.payload);
+    } else if (message.type === 'READ_ALL_READERS_RESPONSE') {
+      resolve(message.payload);
     } else if (message.type === 'CLEAR_CACHE_RESPONSE') {
       resolve(message.payload);
     } else if (message.type === 'CHECK_STATUS_RESPONSE') {
@@ -147,6 +149,36 @@
         return {
           ok: false,
           error: error.message || 'Failed to read personal data'
+        };
+      }
+    },
+    
+    /**
+     * Read personal data from all available card readers
+     * 
+     * @param {Object} options - Reading options
+     * @param {Object} options.fids - Optional custom FID mapping
+     * @param {number} options.timeout - Request timeout in milliseconds (default: 60000)
+     * @returns {Promise<Object>} Multi-reader results
+     * 
+     * @example
+     * const result = await EstEID_PD.readAllReaders();
+     * if (result.ok) {
+     *   result.results.forEach(r => {
+     *     console.log(r.reader, r.data?.personalCode || r.error);
+     *   });
+     * }
+     */
+    readAllReaders: async function(options = {}) {
+      try {
+        return await sendMessage('READ_ALL_READERS', { 
+          ...options, 
+          timeout: options.timeout || 60000 
+        });
+      } catch (error) {
+        return {
+          ok: false,
+          error: error.message || 'Failed to read from all readers'
         };
       }
     },
@@ -215,7 +247,7 @@
     /**
      * Version of the API
      */
-    version: '1.0.2'
+    version: '1.0.3'
   };
   
   console.log('[EstEID-PD] Page API initialized (v' + window.EstEID_PD.version + ')');

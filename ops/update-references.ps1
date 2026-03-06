@@ -19,7 +19,7 @@ $replacements = @(
     },
     @{
         Pattern = 'com\.example\.eid_helper'
-        Replacement = 'ee.aarepuusepp.eid_helper'
+        Replacement = 'ee.aarepuusepp.eid_pd_reader'
         Description = 'Host name'
     }
 )

@@ -72,6 +72,21 @@
           }, '*');
         }
       );
+    } else if (message.type === 'READ_ALL_READERS') {
+      chrome.runtime.sendMessage(
+        { 
+          type: 'EID_PD_READ_ALL',
+          options: message.options || {}
+        },
+        (response) => {
+          window.postMessage({
+            target: 'ESTEID_PD_PAGE',
+            type: 'READ_ALL_READERS_RESPONSE',
+            requestId: message.requestId,
+            payload: response
+          }, '*');
+        }
+      );
     } else if (message.type === 'CHECK_STATUS') {
       chrome.runtime.sendMessage(
         { type: 'EID_PD_STATUS' },
