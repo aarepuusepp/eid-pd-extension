@@ -81,3 +81,20 @@ test('popup discards an in-flight result after same-URL navigation or a policy c
   assert.equal(r.ok,false);assert.equal(r.results,undefined);
  }
 });
+
+
+test('unwrap preserves native timeout code and forwards display metadata without accepting identity overrides',async()=>{
+ let forwarded;
+ const f=fixture({defaultAction:'allow',allowedOrigins:[],blockedOrigins:[]});
+ const original=f.api.runtime.sendNativeMessage;
+ f.api.runtime.sendNativeMessage=async(host,message)=>{
+  if(message.command==='unwrap-transport-key'){forwarded=message;return {ok:false,error:'PIN expired',errorCode:'ERR_EIDPD_PIN_TIMEOUT'};}
+  return original(host,message);
+ };
+ const r=await f.send({action:'UNWRAP_TRANSPORT_KEY',certificate:'cert',challenge:{displayContext:{fileName:'example.cdoc'}},options:{name:'spoof',personalCode:'spoof'}});
+ assert.equal(r.errorCode,'ERR_EIDPD_PIN_TIMEOUT');
+ assert.equal(forwarded.challenge.displayContext.fileName,'example.cdoc');
+ assert.equal(forwarded.origin,'https://visitor.test');
+ assert.equal(forwarded.name,undefined);
+ assert.equal(forwarded.personalCode,undefined);
+});
