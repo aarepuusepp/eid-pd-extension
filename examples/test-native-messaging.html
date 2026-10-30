@@ -171,7 +171,7 @@
                     // Show detailed troubleshooting
                     if (response.error && response.error.includes('not installed')) {
                         log('💡 Troubleshooting: Check if native host is registered', 'info');
-                        log('Run in PowerShell: reg query "HKCU\\Software\\Mozilla\\NativeMessagingHosts\\ee.aarepuusepp.eid_helper"', 'info');
+                        log('Run in PowerShell: reg query "HKLM\\Software\\Mozilla\\NativeMessagingHosts\\ee.aarepuusepp.eid_helper"', 'info');
                     }
                 }
             } catch (error) {

@@ -108,7 +108,7 @@ On Windows, you need to register the host manifest in the Windows Registry:
 
 2. **Verify the path** in the script matches your manifest location:
    ```batch
-   reg add "HKCU\Software\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_helper" /ve /t REG_SZ /d "C:\Program Files\eid-pd-reader\ee.aarepuusepp.eid_helper.json" /f
+   reg add "HKLM\Software\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_helper" /ve /t REG_SZ /d "C:\Program Files\eid-pd-reader\ee.aarepuusepp.eid_helper.json" /f
    ```
 
 3. **Run as Administrator**:
@@ -163,7 +163,7 @@ Get-Content "C:\Program Files\eid-pd-reader\ee.aarepuusepp.eid_helper.json"
 **Check 2: Registry Entry**
 ```powershell
 # Check if registry entry exists
-reg query "HKCU\Software\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_helper"
+reg query "HKLM\Software\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_helper"
 
 # Should show the path to your manifest file
 ```
@@ -231,7 +231,7 @@ Edge uses the same extension format as Chrome, but different registry location:
 
 1. **Register for Edge**:
    ```batch
-   reg add "HKCU\Software\Microsoft\Edge\NativeMessagingHosts\ee.aarepuusepp.eid_helper" /ve /t REG_SZ /d "C:\Program Files\eid-pd-reader\ee.aarepuusepp.eid_helper.json" /f
+   reg add "HKLM\Software\Microsoft\Edge\NativeMessagingHosts\ee.aarepuusepp.eid_helper" /ve /t REG_SZ /d "C:\Program Files\eid-pd-reader\ee.aarepuusepp.eid_helper.json" /f
    ```
 
 2. **Update host manifest** to include both Chrome and Edge:
@@ -327,7 +327,7 @@ For permanent installation, the extension must be signed by Mozilla:
 
    Or manually:
    ```batch
-   reg add "HKCU\Software\Mozilla\NativeMessagingHosts\ee.aarepuusepp.eid_helper" /ve /t REG_SZ /d "C:\Program Files\eid-pd-reader\ee.aarepuusepp.eid_helper.firefox.json" /f
+   reg add "HKLM\Software\Mozilla\NativeMessagingHosts\ee.aarepuusepp.eid_helper" /ve /t REG_SZ /d "C:\Program Files\eid-pd-reader\ee.aarepuusepp.eid_helper.firefox.json" /f
    ```
 
 ### Step 4: Verify Firefox Installation
@@ -417,7 +417,7 @@ EstEID_PD.readPersonalData().then(console.log);
 
 ```powershell
 # Remove registry entry
-reg delete "HKCU\Software\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_helper" /f
+reg delete "HKLM\Software\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_helper" /f
 
 # Remove files
 Remove-Item "C:\Program Files\eid-pd-reader" -Recurse -Force

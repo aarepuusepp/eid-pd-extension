@@ -41,19 +41,19 @@ C:\Program Files\eid-pd-reader\
 
 **Chrome:**
 ```
-HKCU\Software\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_helper
+HKLM\Software\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_helper
   (Default) = "C:\Program Files\eid-pd-reader\ee.aarepuusepp.eid_helper.json"
 ```
 
 **Edge:**
 ```
-HKCU\Software\Microsoft\Edge\NativeMessagingHosts\ee.aarepuusepp.eid_helper
+HKLM\Software\Microsoft\Edge\NativeMessagingHosts\ee.aarepuusepp.eid_helper
   (Default) = "C:\Program Files\eid-pd-reader\ee.aarepuusepp.eid_helper.json"
 ```
 
 **Firefox:**
 ```
-HKCU\Software\Mozilla\NativeMessagingHosts\ee.aarepuusepp.eid_helper
+HKLM\Software\Mozilla\NativeMessagingHosts\ee.aarepuusepp.eid_helper
   (Default) = "C:\Program Files\eid-pd-reader\ee.aarepuusepp.eid_helper.firefox.json"
 ```
 
@@ -158,13 +158,13 @@ copy host-manifests\ee.aarepuusepp.eid_helper.firefox.json "C:\Program Files\eid
 
 ```powershell
 # Chrome
-reg add "HKCU\Software\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_helper" /ve /t REG_SZ /d "C:\Program Files\eid-pd-reader\ee.aarepuusepp.eid_helper.json" /f
+reg add "HKLM\Software\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_helper" /ve /t REG_SZ /d "C:\Program Files\eid-pd-reader\ee.aarepuusepp.eid_helper.json" /f
 
 # Edge
-reg add "HKCU\Software\Microsoft\Edge\NativeMessagingHosts\ee.aarepuusepp.eid_helper" /ve /t REG_SZ /d "C:\Program Files\eid-pd-reader\ee.aarepuusepp.eid_helper.json" /f
+reg add "HKLM\Software\Microsoft\Edge\NativeMessagingHosts\ee.aarepuusepp.eid_helper" /ve /t REG_SZ /d "C:\Program Files\eid-pd-reader\ee.aarepuusepp.eid_helper.json" /f
 
 # Firefox
-reg add "HKCU\Software\Mozilla\NativeMessagingHosts\ee.aarepuusepp.eid_helper" /ve /t REG_SZ /d "C:\Program Files\eid-pd-reader\ee.aarepuusepp.eid_helper.firefox.json" /f
+reg add "HKLM\Software\Mozilla\NativeMessagingHosts\ee.aarepuusepp.eid_helper" /ve /t REG_SZ /d "C:\Program Files\eid-pd-reader\ee.aarepuusepp.eid_helper.firefox.json" /f
 ```
 
 ### 3. Install Browser Extensions
@@ -188,13 +188,13 @@ Test-Path "C:\Program Files\eid-pd-reader\ee.aarepuusepp.eid_helper.firefox.json
 
 ```powershell
 # Chrome
-reg query "HKCU\Software\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_helper"
+reg query "HKLM\Software\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_helper"
 
 # Edge
-reg query "HKCU\Software\Microsoft\Edge\NativeMessagingHosts\ee.aarepuusepp.eid_helper"
+reg query "HKLM\Software\Microsoft\Edge\NativeMessagingHosts\ee.aarepuusepp.eid_helper"
 
 # Firefox
-reg query "HKCU\Software\Mozilla\NativeMessagingHosts\ee.aarepuusepp.eid_helper"
+reg query "HKLM\Software\Mozilla\NativeMessagingHosts\ee.aarepuusepp.eid_helper"
 ```
 
 ### Check Extension
@@ -225,9 +225,9 @@ EstEID_PD.checkStatus().then(status => {
 
 ```powershell
 # Remove registry entries
-reg delete "HKCU\Software\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_helper" /f
-reg delete "HKCU\Software\Microsoft\Edge\NativeMessagingHosts\ee.aarepuusepp.eid_helper" /f
-reg delete "HKCU\Software\Mozilla\NativeMessagingHosts\ee.aarepuusepp.eid_helper" /f
+reg delete "HKLM\Software\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_helper" /f
+reg delete "HKLM\Software\Microsoft\Edge\NativeMessagingHosts\ee.aarepuusepp.eid_helper" /f
+reg delete "HKLM\Software\Mozilla\NativeMessagingHosts\ee.aarepuusepp.eid_helper" /f
 
 # Remove files
 Remove-Item "C:\Program Files\eid-pd-reader" -Recurse -Force
@@ -261,7 +261,7 @@ Remove-Item "C:\Program Files\eid-pd-reader" -Recurse -Force
 **Solution:**
 ```powershell
 # Check if registry entries exist
-reg query "HKCU\Software\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_helper"
+reg query "HKLM\Software\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_helper"
 
 # Re-run installer if missing
 .\install.cmd
@@ -278,7 +278,7 @@ reg query "HKCU\Software\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_h
 To install for all users on the computer, modify the registry paths:
 
 ```powershell
-# Instead of HKCU (current user), use HKLM (local machine)
+# Instead of HKLM (current user), use HKLM (local machine)
 # Requires Administrator rights
 
 # Chrome (all users)

@@ -1,173 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Estonian ID Card Reader</title>
-  <link rel="stylesheet" href="popup.css">
-</head>
-<body>
-  <div class="container">
-    <header>
-      <img src="../icons/icon.svg" alt="EstEID" class="logo">
-      <h1>Estonian ID Card Reader</h1>
-      <p class="subtitle">Personal Data from Chip</p>
-    </header>
-    
-    <main>
-      <!-- Status Section -->
-      <div id="status" class="status">
-        <div class="status-indicator" id="statusIndicator">
-          <span class="dot"></span>
-          <span id="statusText">Checking...</span>
-        </div>
-      </div>
-      
-      <!-- Mode Selection -->
-      <div class="mode-selection">
-        <label class="mode-label">Reading Mode:</label>
-        <div class="mode-toggle">
-          <input type="radio" id="modeContact" name="mode" value="contact" checked>
-          <label for="modeContact">Contact</label>
-          <input type="radio" id="modeNFC" name="mode" value="nfc">
-          <label for="modeNFC">NFC</label>
-          <input type="radio" id="modeAll" name="mode" value="all">
-          <label for="modeAll">All Readers</label>
-        </div>
-      </div>
-      
-      <!-- CAN Input (for NFC mode) -->
-      <div id="canInput" class="can-input hidden">
-        <label for="can">CAN (Card Access Number):</label>
-        <input type="text" id="can" maxlength="6" pattern="[0-9]{6}" placeholder="6 digits from card">
-        <small>Enter the 6-digit CAN printed on your ID card</small>
-        <div class="retry-input">
-          <label for="retryCount">Retry attempts:</label>
-          <input type="number" id="retryCount" min="1" max="10" value="3">
-        </div>
-      </div>
-      
-      <!-- NFC Capability Notice -->
-      <div id="nfcNotice" class="notice hidden">
-        <p>⚠️ NFC/PACE not available in this build. Please use Contact mode.</p>
-      </div>
-      
-      <!-- Action Buttons -->
-      <div class="actions">
-        <button id="readBtn" class="btn btn-primary" disabled>
-          <span class="btn-icon">📇</span>
-          Read ID Card
-        </button>
-        <button id="clearBtn" class="btn btn-secondary">
-          <span class="btn-icon">🗑️</span>
-          Clear Cache
-        </button>
-      </div>
-      
-      <!-- Results Section (single reader) -->
-      <div id="results" class="results hidden">
-        <h2>Personal Data</h2>
-        <div class="data-grid">
-          <div class="data-item">
-            <label>Name:</label>
-            <span id="name">-</span>
-          </div>
-          <div class="data-item">
-            <label>Personal Code:</label>
-            <span id="personalCode">-</span>
-          </div>
-          <div class="data-item">
-            <label>Document Number:</label>
-            <span id="documentNr">-</span>
-          </div>
-          <div class="data-item">
-            <label>Citizenship:</label>
-            <span id="citizenship">-</span>
-          </div>
-          <div class="data-item">
-            <label>Birth Date:</label>
-            <span id="birthDate">-</span>
-          </div>
-          <div class="data-item">
-            <label>Expiry Date:</label>
-            <span id="expiryDate">-</span>
-          </div>
-          <div class="data-item">
-            <label>Source:</label>
-            <span id="source" class="badge">-</span>
-          </div>
-        </div>
-        <div class="timing-info" id="timingInfo">
-          <span id="timestamp"></span>
-          <span id="duration"></span>
-        </div>
-      </div>
-      
-      <!-- Results Section (multi-reader) -->
-      <div id="multiResults" class="results hidden">
-        <h2>All Readers</h2>
-        <div id="multiResultsList" class="multi-results-list"></div>
-        <div class="timing-info" id="multiTimingInfo">
-          <span id="multiTimestamp"></span>
-          <span id="multiDuration"></span>
-        </div>
-      </div>
-      
-      <!-- Error Section -->
-      <div id="error" class="error hidden">
-        <h3>⚠️ Error</h3>
-        <p id="errorMessage"></p>
-        <details>
-          <summary>Technical Details</summary>
-          <pre id="errorDetails"></pre>
-        </details>
-      </div>
-      
-      <!-- Help Section -->
-      <div class="help">
-        <details>
-          <summary>ℹ️ How to use</summary>
-          <p><strong>Contact Mode:</strong></p>
-          <ol>
-            <li>Insert your Estonian ID card into the reader</li>
-            <li>Click "Read ID Card" button</li>
-            <li>Personal data will be displayed</li>
-            <li>Data is cached for 5 minutes</li>
-          </ol>
-          <p><strong>NFC Mode:</strong></p>
-          <ol>
-            <li>Place your ID card on an NFC reader</li>
-            <li>Enter the 6-digit CAN from your card</li>
-            <li>Click "Read ID Card" button</li>
-            <li>Data is read using PACE protocol</li>
-          </ol>
-          <p><strong>All Readers Mode:</strong></p>
-          <ol>
-            <li>Insert cards into all available readers</li>
-            <li>Select "All Readers" mode</li>
-            <li>Each reader is queried with per-reader timing</li>
-          </ol>
-          <p><strong>Troubleshooting:</strong></p>
-          <ul>
-            <li>Make sure the card is properly inserted/placed</li>
-            <li>Check that PC/SC service is running</li>
-            <li>For NFC: verify CAN is correct</li>
-            <li>Try removing and reinserting the card</li>
-          </ul>
-        </details>
-      </div>
-    </main>
-    
-    <footer>
-      <div class="version-info">
-        <p><strong>Extension:</strong> <span id="extensionVersion">1.0.3</span></p>
-        <p><strong>Helper:</strong> <span id="helperVersion">checking...</span></p>
-      </div>
-      <p><a href="https://github.com/aarepuusepp/web-eid-pd" target="_blank">Documentation</a></p>
-    </footer>
-  </div>
-  
-  <script src="popup.js"></script>
-</body>
-</html>
-
+<!doctype html>
+<html lang="et"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>EID-PD kaardilugeja</title><link rel="stylesheet" href="popup.css"></head>
+<body><header><img src="../icons/icon.svg" alt="" width="48" height="48"><h1>EID-PD kaardilugeja</h1><p>Isikuandmed ID-kaardi kiibilt</p></header>
+<main>
+ <div id="status" role="status" aria-live="polite" class="status unavailable">
+  <svg id="readyIcon" hidden width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>
+  <svg id="missingIcon" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+  <span id="statusText">Kontrollin kaardi ühendust…</span>
+ </div>
+ <p class="site-label">Aktiivne veebileht: <strong id="site">—</strong></p>
+ <p id="policyHint" class="hint"></p>
+ <fieldset id="modes"><legend>Lugemisviis</legend><label><input type="radio" name="mode" value="contact"> Kontakt</label><label><input type="radio" name="mode" value="nfc"> NFC</label><label><input type="radio" name="mode" value="all" checked> Kõik lugejad</label></fieldset>
+ <label id="canField" hidden>Kaardil olev CAN <input id="can" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" autocomplete="off"></label>
+ <p class="hint">Nupuvajutus lubab ühekordse lugemise ainult selles hüpikvaates. Andmeid veebilehele ei saadeta ja veebilehe luba ei salvestata.</p>
+ <div class="actions"><button id="read" disabled>Loe kaardiandmed</button><button id="hide" type="button" class="secondary" disabled>Peida andmed</button></div>
+ <p id="error" role="alert"></p>
+ <section id="results" aria-label="Loetud kaardiandmed" hidden></section>
+ <p id="expiry" class="hint" hidden>Andmed peidetakse 30 sekundi pärast või hüpikvaate sulgemisel.</p>
+ <footer><button id="settings" class="link">Veebilehtede load</button><a href="https://www.id.ee/paigalda/" target="_blank" rel="noopener">ID-tarkvara</a></footer>
+</main><script src="popup.js"></script></body></html>

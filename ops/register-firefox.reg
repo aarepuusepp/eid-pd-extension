@@ -9,6 +9,6 @@ Windows Registry Editor Version 5.00
 ; IMPORTANT: Firefox uses a separate manifest file (ee.aarepuusepp.eid_pd_reader.firefox.json)
 ; because it requires "allowed_extensions" instead of "allowed_origins"
 
-[HKEY_CURRENT_USER\Software\Mozilla\NativeMessagingHosts\ee.aarepuusepp.eid_pd_reader]
+[HKEY_LOCAL_MACHINE\Software\Mozilla\NativeMessagingHosts\ee.aarepuusepp.eid_pd_reader]
 @="C:\\Program Files\\eid-pd-reader\\ee.aarepuusepp.eid_pd_reader.firefox.json"
 

@@ -113,19 +113,19 @@ Write-Host "`nChecking registry..." -ForegroundColor Yellow
 
 $registryFound = $false
 
-# Check HKCU (Current User) - where install.cmd registers
-$regPathHKCU = "HKCU:\SOFTWARE\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_pd_reader"
+# Check HKLM (Local Machine) - where install.cmd registers (all users)
+$regPathHKLM = "HKLM:\SOFTWARE\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_pd_reader"
 try {
-    $regValue = Get-ItemProperty -Path $regPathHKCU -Name "(Default)" -ErrorAction Stop
-    Write-Host "✓ Registry entry found (HKCU)" -ForegroundColor Green
+    $regValue = Get-ItemProperty -Path $regPathHKLM -Name "(Default)" -ErrorAction Stop
+    Write-Host "✓ Registry entry found (HKLM)" -ForegroundColor Green
     Write-Host "  Path: $($regValue.'(Default)')" -ForegroundColor Gray
     $registryFound = $true
 } catch {
-    # Try HKLM (Local Machine)
-    $regPathHKLM = "HKLM:\SOFTWARE\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_pd_reader"
+    # Fallback: check HKCU (Current User) for legacy installs
+    $regPathHKCU = "HKCU:\SOFTWARE\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_pd_reader"
     try {
-        $regValue = Get-ItemProperty -Path $regPathHKLM -Name "(Default)" -ErrorAction Stop
-        Write-Host "✓ Registry entry found (HKLM)" -ForegroundColor Green
+        $regValue = Get-ItemProperty -Path $regPathHKCU -Name "(Default)" -ErrorAction Stop
+        Write-Host "✓ Registry entry found (HKCU - legacy)" -ForegroundColor Green
         Write-Host "  Path: $($regValue.'(Default)')" -ForegroundColor Gray
         $registryFound = $true
     } catch {

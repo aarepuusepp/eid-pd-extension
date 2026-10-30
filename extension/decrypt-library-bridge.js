@@ -1,0 +1,1 @@
+// Compatibility transport is handled by content-bridge.js.

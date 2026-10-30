@@ -7,14 +7,14 @@ Windows Registry Editor Version 5.00
 ; Default: C:\Program Files\eid-pd-reader\
 
 ; Google Chrome
-[HKEY_CURRENT_USER\Software\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_pd_reader]
+[HKEY_LOCAL_MACHINE\Software\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_pd_reader]
 @="C:\\Program Files\\eid-pd-reader\\ee.aarepuusepp.eid_pd_reader.json"
 
 ; Microsoft Edge
-[HKEY_CURRENT_USER\Software\Microsoft\Edge\NativeMessagingHosts\ee.aarepuusepp.eid_pd_reader]
+[HKEY_LOCAL_MACHINE\Software\Microsoft\Edge\NativeMessagingHosts\ee.aarepuusepp.eid_pd_reader]
 @="C:\\Program Files\\eid-pd-reader\\ee.aarepuusepp.eid_pd_reader.json"
 
 ; Mozilla Firefox
-[HKEY_CURRENT_USER\Software\Mozilla\NativeMessagingHosts\ee.aarepuusepp.eid_pd_reader]
+[HKEY_LOCAL_MACHINE\Software\Mozilla\NativeMessagingHosts\ee.aarepuusepp.eid_pd_reader]
 @="C:\\Program Files\\eid-pd-reader\\ee.aarepuusepp.eid_pd_reader.firefox.json"
 

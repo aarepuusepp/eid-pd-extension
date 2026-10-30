@@ -105,6 +105,38 @@ Clears cached personal data.
 
 **Returns:** Promise<void>
 
+#### `window.EstEID_PD.decryptContainer(options)`
+
+Decrypts a CDOC container with the user's local PKCS#11 token. The ID-card authentication/decryption key is unlocked with PIN1.
+
+```javascript
+const result = await window.EstEID_PD.decryptContainer({
+    containerBase64: "base64-encoded-cdoc",
+    pin: "1234",
+    pkcs11: {
+        libraryPath: "C:\\Program Files\\OpenSC Project\\OpenSC\\pkcs11\\opensc-pkcs11.dll",
+        slot: 0,
+        label: "",
+        keyIdHex: ""
+    }
+});
+```
+
+**Returns:** Promise with decrypted files:
+
+```javascript
+{
+    ok: true,
+    data: {
+        fileCount: 1,
+        tokenSource: "PKCS11",
+        files: [
+            { name: "document.txt", contentBase64: "...", size: 1234 }
+        ]
+    }
+}
+```
+
 #### `window.EstEID_PD.version`
 
 Extension version string.
@@ -253,7 +285,7 @@ MIT License
 
 ## Version
 
-Current version: 1.0.2
+Current version: 1.0.4
 
 See [Release Notes](../eid-pd-reader/docs/releases/) for changelog.
 

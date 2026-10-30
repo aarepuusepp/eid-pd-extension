@@ -1569,11 +1569,11 @@ $manifest = @{
 $manifest | Out-File -FilePath "$installPath\ee.aarepuusepp.eid_helper.json" -Encoding UTF8
 
 # Register with browsers
-$regPath = "HKCU:\Software\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_helper"
+$regPath = "HKLM:\Software\Google\Chrome\NativeMessagingHosts\ee.aarepuusepp.eid_helper"
 New-Item -Path $regPath -Force | Out-Null
 Set-ItemProperty -Path $regPath -Name "(Default)" -Value "$installPath\ee.aarepuusepp.eid_helper.json"
 
-$regPath = "HKCU:\Software\Microsoft\Edge\NativeMessagingHosts\ee.aarepuusepp.eid_helper"
+$regPath = "HKLM:\Software\Microsoft\Edge\NativeMessagingHosts\ee.aarepuusepp.eid_helper"
 New-Item -Path $regPath -Force | Out-Null
 Set-ItemProperty -Path $regPath -Name "(Default)" -Value "$installPath\ee.aarepuusepp.eid_helper.json"
 
