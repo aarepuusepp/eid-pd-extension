@@ -15,7 +15,7 @@
   });
  }
  window.EstEID_PD={
-  version:'2.1.1',isAvailable:()=>true,
+  version:'2.1.2',isAvailable:()=>true,
   readPersonalData:(options)=>send('READ_PERSONAL_DATA',options),
   readAllReaders:(options)=>send('READ_ALL_READERS',options),
   readCard:(options)=>send('READ_PERSONAL_DATA',options),
@@ -23,5 +23,5 @@
   clearCache:()=>send('CLEAR_CACHE'),
   checkStatus:()=>send('CHECK_STATUS', {timeout:5000})
  };
- window.dispatchEvent(new CustomEvent('esteid-pd-ready',{detail:{version:'2.1.1'}}));
+ window.dispatchEvent(new CustomEvent('esteid-pd-ready',{detail:{version:'2.1.2'}}));
 })();

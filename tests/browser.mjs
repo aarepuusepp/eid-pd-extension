@@ -14,7 +14,7 @@ for(const channel of ['chromium','msedge']){
    chrome.runtime.sendNativeMessage=async(_host,m)=>{
     globalThis.nativeCalls.push(m);
     if(m.command==='policy')return {ok:true,protocol:1,data:{defaultAction:'ask',allowedOrigins:[],blockedOrigins:[]}};
-    if(m.command==='status')return {ok:true,data:{protocol:1,nativeApp:'2.1.1',diagnostics:{pcscAvailable:true,readerCount:1,cardPresent:globalThis.testCardPresent,pkcs11State:'missing'}}};
+    if(m.command==='status')return {ok:true,data:{protocol:1,nativeApp:'2.1.2',diagnostics:{pcscAvailable:true,readerCount:1,cardPresent:globalThis.testCardPresent,pkcs11State:'missing'}}};
     return globalThis.testReadResult;
    };
   });

@@ -7,8 +7,8 @@ const sender={id:'ext',url:'https://visitor.test/',frameId:0,tab:{id:1,windowId:
 function fixture(p={defaultAction:'ask',allowedOrigins:[],blockedOrigins:[]}){
  let listener;const events={};const calls=[];const windows=[];let grants={};let tab={...sender.tab};
  const event=name=>({addListener(fn){events[name]=fn;}});
- const api={runtime:{id:'ext',getURL:f=>'chrome-extension://ext/'+f,getManifest:()=>({version:'2.1.1'}),onMessage:{addListener:f=>listener=f},
- async sendNativeMessage(host,message){calls.push(message);if(message.command==='policy')return {ok:true,protocol:1,data:p};if(message.command==='status')return {ok:true,data:{protocol:1,nativeApp:'2.1.1'}};return {ok:true,results:[],data:{}};}},
+ const api={runtime:{id:'ext',getURL:f=>'chrome-extension://ext/'+f,getManifest:()=>({version:'2.1.2'}),onMessage:{addListener:f=>listener=f},
+ async sendNativeMessage(host,message){calls.push(message);if(message.command==='policy')return {ok:true,protocol:1,data:p};if(message.command==='status')return {ok:true,data:{protocol:1,nativeApp:'2.1.2'}};return {ok:true,results:[],data:{}};}},
  storage:{local:{async get(){return {grants:{...grants}}},async set(v){grants=v.grants},async remove(){grants={}}}},
  tabs:{async get(){return tab},async query(){return [tab]},onUpdated:event('updated'),onRemoved:event('removed')},
  windows:{async create(options){const w={...options,id:windows.length+10};windows.push(w);return w;},async remove(){},onRemoved:event('closed')}};
