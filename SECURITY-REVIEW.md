@@ -1,6 +1,6 @@
 # Dependency review, 2026-10-30
 
-Release: 2.1.2; shared web SDK: 1.0.1.
+Release: 2.1.3; shared web SDK: 1.0.1.
 
 - Extension access-policy tests: 22 passed; SDK tests: 12 passed.
 - Chromium and Edge extension bridge tests passed with a mocked native host.

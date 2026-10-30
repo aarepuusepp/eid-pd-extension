@@ -18,8 +18,9 @@ for(const channel of ['chromium','msedge']){
     return globalThis.testReadResult;
    };
   });
-  await context.route('https://eidpd.test/**',route=>route.fulfill({contentType:route.request().url().endsWith('sdk.js')?'application/javascript':'text/html',body:route.request().url().endsWith('sdk.js')?sdk:'<html><button id="read">Read</button><button id="legacy">Legacy</button><output id="result"></output><script type="module">import * as sdk from "/sdk.js";document.querySelector("#read").onclick=()=>sdk.readAllReaders().then(r=>result.textContent=JSON.stringify(r)).catch(e=>result.textContent=e.code);document.querySelector("#legacy").onclick=()=>window.EstEID_PD.readAllReaders().then(r=>result.textContent=JSON.stringify(r));</script></html>'}));
-  const page=await context.newPage();await page.goto('https://eidpd.test/');
+  await context.route('https://eidpd.test/**',route=>route.fulfill({contentType:route.request().url().endsWith('sdk.js')?'application/javascript':'text/html',body:route.request().url().endsWith('sdk.js')?sdk:'<html><button id="read">Read</button><button id="legacy">Legacy</button><output id="result"></output><script type="module">import * as sdk from "/sdk.js";const result=document.querySelector("#result");document.querySelector("#read").onclick=()=>sdk.readAllReaders().then(r=>result.textContent=JSON.stringify(r)).catch(e=>result.textContent=e.code);document.querySelector("#legacy").onclick=()=>window.EstEID_PD.readAllReaders().then(r=>result.textContent=JSON.stringify(r));document.documentElement.dataset.sdkReady="true";</script></html>'}));
+  const page=await context.newPage();page.on('pageerror',error=>console.error(channel+': '+error.message));await page.goto('https://eidpd.test/');
+  await expect(page.locator('html')).toHaveAttribute('data-sdk-ready','true');
   const promptEvent=context.waitForEvent('page');await page.locator('#read').click();const prompt=await promptEvent;
   await expect(prompt.locator('#site')).toHaveText('https://eidpd.test');
   expect((await worker.evaluate(()=>globalThis.nativeCalls)).some(c=>c.command==='readAllReaders')).toBe(false);

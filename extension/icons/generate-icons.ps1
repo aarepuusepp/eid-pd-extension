@@ -1,30 +1,40 @@
-# Generate simple placeholder icons for the extension
-# Requires PowerShell 5.1+ (Windows 10+)
-
-Write-Host "Generating placeholder icons..." -ForegroundColor Cyan
-
-# Create a simple SVG icon
-$svg = @"
-<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-  <rect width="128" height="128" fill="#0072CE" rx="16"/>
-  <rect x="16" y="32" width="96" height="64" fill="white" rx="8"/>
-  <rect x="24" y="40" width="32" height="24" fill="#FFD700" rx="2"/>
-  <text x="64" y="72" font-family="Arial" font-size="20" font-weight="bold" fill="#0072CE" text-anchor="middle">ID</text>
-  <rect x="24" y="72" width="80" height="4" fill="#E0E0E0" rx="2"/>
-  <rect x="24" y="80" width="60" height="4" fill="#E0E0E0" rx="2"/>
-  <rect x="24" y="88" width="70" height="4" fill="#E0E0E0" rx="2"/>
-</svg>
-"@
-
-# Save SVG
-$svg | Out-File -FilePath "icon.svg" -Encoding utf8
-
-Write-Host "✓ Created icon.svg" -ForegroundColor Green
-Write-Host ""
-Write-Host "To create PNG icons, you can:" -ForegroundColor Yellow
-Write-Host "1. Use an online converter: https://www.aconvert.com/image/svg-to-png/" -ForegroundColor Gray
-Write-Host "2. Use Inkscape: inkscape icon.svg --export-png=icon128.png -w 128 -h 128" -ForegroundColor Gray
-Write-Host "3. Use ImageMagick: convert -density 300 icon.svg -resize 128x128 icon128.png" -ForegroundColor Gray
-Write-Host ""
-Write-Host "For now, Chrome will use default icons." -ForegroundColor Cyan
-
+# Render the rectangle-based icon.svg in its full viewBox before downsampling.
+$ErrorActionPreference = 'Stop'
+Add-Type -AssemblyName System.Drawing
+[xml]$svg = Get-Content (Join-Path $PSScriptRoot 'icon.svg') -Raw
+$canvas = [Drawing.Bitmap]::new(1024, 1024)
+$graphics = [Drawing.Graphics]::FromImage($canvas)
+try {
+    $graphics.Clear([Drawing.Color]::Transparent)
+    $graphics.SmoothingMode = [Drawing.Drawing2D.SmoothingMode]::AntiAlias
+    $graphics.ScaleTransform(8, 8)
+    foreach ($rect in $svg.svg.ChildNodes | Where-Object LocalName -eq 'rect') {
+        $x = [single]$rect.GetAttribute('x'); $y = [single]$rect.GetAttribute('y')
+        $w = [single]$rect.GetAttribute('width'); $h = [single]$rect.GetAttribute('height')
+        $radius = [single]$rect.GetAttribute('rx')
+        $brush = [Drawing.SolidBrush]::new([Drawing.ColorTranslator]::FromHtml($rect.GetAttribute('fill')))
+        $path = [Drawing.Drawing2D.GraphicsPath]::new()
+        try {
+            if ($radius -gt 0) {
+                $d = 2 * [Math]::Min($radius, [Math]::Min($w, $h) / 2)
+                $path.AddArc($x, $y, $d, $d, 180, 90)
+                $path.AddArc($x + $w - $d, $y, $d, $d, 270, 90)
+                $path.AddArc($x + $w - $d, $y + $h - $d, $d, $d, 0, 90)
+                $path.AddArc($x, $y + $h - $d, $d, $d, 90, 90)
+                $path.CloseFigure()
+                $graphics.FillPath($brush, $path)
+            } else { $graphics.FillRectangle($brush, $x, $y, $w, $h) }
+        } finally { $path.Dispose(); $brush.Dispose() }
+    }
+    foreach ($size in @(16, 20, 24, 32, 48, 64, 96, 128)) {
+        $bitmap = [Drawing.Bitmap]::new($size, $size)
+        $output = [Drawing.Graphics]::FromImage($bitmap)
+        try {
+            $output.InterpolationMode = [Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+            $output.PixelOffsetMode = [Drawing.Drawing2D.PixelOffsetMode]::HighQuality
+            $output.DrawImage($canvas, [Drawing.Rectangle]::new(0, 0, $size, $size), 0, 0, 1024, 1024, [Drawing.GraphicsUnit]::Pixel)
+            $bitmap.Save((Join-Path $PSScriptRoot "icon$size.png"), [Drawing.Imaging.ImageFormat]::Png)
+        } finally { $output.Dispose(); $bitmap.Dispose() }
+        Write-Host "Generated icon$size.png"
+    }
+} finally { $graphics.Dispose(); $canvas.Dispose() }
