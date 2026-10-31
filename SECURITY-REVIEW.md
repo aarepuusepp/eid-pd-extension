@@ -1,3 +1,5 @@
+> Historical investigation/development record. Commands, versions and completion claims describe that record, not the current release. Use [current README](README.md) for supported setup and API boundaries.
+
 # Dependency review, 2026-10-30
 
 Release: 2.1.3; shared web SDK: 1.0.1.
