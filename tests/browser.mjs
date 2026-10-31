@@ -1,7 +1,8 @@
-import {chromium,expect} from '@playwright/test';
+import {chromium,expect as baseExpect} from '@playwright/test';
 import {mkdtempSync,readFileSync,mkdirSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {resolve} from 'node:path';
+const expect=baseExpect.configure({timeout:15000});
 const extension=resolve(process.env.EIDPD_EXTENSION_PATH||'extension');
 const sdk=readFileSync('web-eid-pd/index.js','utf8');
 for(const channel of ['chromium','msedge']){
@@ -26,8 +27,10 @@ for(const channel of ['chromium','msedge']){
   expect((await worker.evaluate(()=>globalThis.nativeCalls)).some(c=>c.command==='readAllReaders')).toBe(false);
   mkdirSync('test-results',{recursive:true});await prompt.screenshot({path:'test-results/consent-'+channel+'.png'});
   await prompt.getByRole('button',{name:'Luba seekord',exact:true}).click();
+  await page.bringToFront();
   await expect(page.locator('#result')).toHaveText('{"ok":true,"results":[]}');
   const legacyPrompt=context.waitForEvent('page');await page.locator('#legacy').click();const denied=await legacyPrompt;
+  await expect(denied.locator('#site')).toHaveText('https://eidpd.test');
   await denied.getByRole('button',{name:'Keeldu',exact:true}).click();
   await expect(page.locator('#result')).toContainText('"ok":false');
   await page.bringToFront();
@@ -36,6 +39,8 @@ for(const channel of ['chromium','msedge']){
   // Open the same extension-owned document in a non-focused popup test window.
   await worker.evaluate(()=>chrome.windows.create({url:chrome.runtime.getURL('popup/popup.html'),type:'popup',focused:false,width:460,height:780}));
   const popup=await popupEvent;
+  await expect(popup.locator('#extensionVersion')).toHaveText(JSON.parse(readFileSync(extension+'/manifest.json','utf8')).version);
+  await expect(popup.locator('#readerVersion')).toHaveText('2.1.2');
   await expect(popup.locator('#statusText')).toHaveText('Sisesta ID-kaart lugejasse.');
   await expect(popup.locator('#read')).toBeDisabled();
   await expect(popup.locator('#missingIcon')).toBeVisible();
@@ -60,6 +65,14 @@ for(const channel of ['chromium','msedge']){
   await expect(popup.locator('#results')).toBeHidden();
   await expect(popup.locator('#read')).toBeDisabled();
   await popup.close();
+  const settings=await context.newPage();
+  await settings.goto(worker.url().replace(/[^/]+$/,'settings.html'));
+  await expect(settings.locator('#extensionVersion')).toHaveText(JSON.parse(readFileSync(extension+'/manifest.json','utf8')).version);
+  await expect(settings.locator('#readerVersion')).toHaveText('2.1.2');
+  await worker.evaluate(()=>{chrome.runtime.sendNativeMessage=async()=>{throw Error('host absent')}});
+  await settings.locator('#refreshVersions').click();
+  await expect(settings.locator('#readerVersion')).toHaveText('Pole kättesaadav');
+  await settings.close();
   console.log(channel+': actual extension/SDK/consent/legacy and popup readiness/read/clear flows PASS (native I/O mocked)');
  }finally{await context.close();}
 }

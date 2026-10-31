@@ -102,6 +102,12 @@
     } finally {cardBusy=false;}
   }
   async function dispatch(request,sender) {
+    if(request.type==='COMPONENT_VERSIONS'){
+      if(!internal(sender,'popup/popup.html')&&!internal(sender,'settings.html'))throw fail('ERR_EIDPD_SITE_DENIED','Keelatud');
+      // Diagnostic only: no card data, consent or active website is required.
+      const r=await native({command:'status'});
+      return {ok:true,nativeApp:r.data?.nativeApp,protocol:r.data?.protocol};
+    }
     if(request.type==='POPUP_STATUS'||request.type==='POPUP_READ')return popup(request,sender);
     if(request.type==='CONSENT_GET' || request.type==='CONSENT_REPLY'){
       const p=pending.get(request.token);

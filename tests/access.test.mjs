@@ -52,6 +52,20 @@ test('missing native host and an old host have distinct diagnostics',async()=>{
 });
 
 const popupSender={id:'ext',url:'chrome-extension://ext/popup/popup.html'};
+
+test('component versions are independent diagnostics restricted to extension UI',async()=>{
+ const f=fixture();f.api.runtime.getManifest=()=>({version:'8.1.0'});
+ f.setTab({...sender.tab,url:'about:debugging'});
+ for(const url of ['chrome-extension://ext/popup/popup.html','chrome-extension://ext/settings.html']){
+  const r=await f.send({type:'COMPONENT_VERSIONS'},{id:'ext',url});
+  assert.equal(r.nativeApp,'2.1.2');assert.equal(r.protocol,1);
+ }
+ assert.deepEqual(f.calls.map(c=>c.command),['status','status']);
+ assert.equal((await f.send({type:'COMPONENT_VERSIONS'})).ok,false);
+ assert.equal(f.calls.length,2);assert.equal(f.windows.length,0);
+ f.api.runtime.sendNativeMessage=async()=>{throw Error('not installed')};
+ assert.equal((await f.send({type:'COMPONENT_VERSIONS'},popupSender)).errorCode,'ERR_EIDPD_NATIVE_UNAVAILABLE');
+});
 test('popup status is diagnostic only; explicit local read never grants or forwards to a website',async()=>{
  const f=fixture();const status=await f.send({type:'POPUP_STATUS'},popupSender);
  assert.equal(status.context.origin,'https://visitor.test');assert.deepEqual(f.calls.map(x=>x.command),['policy','status']);

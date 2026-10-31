@@ -1,16 +1,16 @@
-# EID-PD browser extension 2.1.5
+# EID-PD browser extension 2.1.6
 
 Chrome, Edge and Firefox native-messaging bridge for the EID-PD Windows reader.
-See [release notes](RELEASE-2.1.5.md). Includes web-eid-pd.js 1.0.2.
+See [release notes](RELEASE-2.1.6.md). Includes web-eid-pd.js 1.0.2.
 
 ## Development installation
 
-Build the matching 2.1.5 workstation package in the sibling eid-pd-installer
+Build the 2.1.6 workstation package (reader 2.1.5, extension 2.1.6) in the sibling eid-pd-installer
 repository with build-installer.ps1. Install its EXE, then load its unpacked
 browser directory:
-- Chrome/Edge: Extensions > Developer mode > Load unpacked > browsers/2.1.5/chromium.
+- Chrome/Edge: Extensions > Developer mode > Load unpacked > browsers/2.1.6/chromium.
 - Firefox: about:debugging#/runtime/this-firefox > Load Temporary Add-on >
-  browsers/2.1.5/firefox/manifest.json. Reload after each Firefox restart.
+  browsers/2.1.6/firefox/manifest.json. Reload after each Firefox restart.
 
 The installer generates the matching native host registrations and stable
 development extension ID. Do not manually edit manifests or copy IDs into web
@@ -43,3 +43,16 @@ without granting a website permission or forwarding the result to that website.
   using mocked native I/O.
 - Real-card acceptance: see eid-pd-reader/docs/NFC-CRYPTO.md and
   docs/DIRECT-NFC-TEST.md in that repository. Mocked browser tests do not replace it.
+
+## Component version display
+
+The popup and settings show Brauserilaiendus (runtime manifest version) and
+EID-PD reader (native status nativeApp) independently. Different component versions
+are normal; protocol compatibility is checked separately. Värskenda versioone
+refreshes the native value; an unavailable host shows Pole kättesaadav rather than
+a cached or inferred reader version. This diagnostic does not read personal data
+or require an active HTTPS page, card, CAN or PIN.
+
+Firefox owns the about:debugging list; the reader version is displayed in our
+popup/settings, not injected into the browser extension list.
+Additional UI regression: node tests/versions-ui.mjs (Firefox, APIs mocked).
