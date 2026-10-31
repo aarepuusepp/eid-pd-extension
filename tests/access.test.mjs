@@ -98,3 +98,52 @@ test('unwrap preserves native timeout code and forwards display metadata without
  assert.equal(forwarded.name,undefined);
  assert.equal(forwarded.personalCode,undefined);
 });
+
+
+test('NFC crypto forwards trusted origin and mode only to capable hosts',async()=>{
+ const f=fixture({defaultAction:'allow',allowedOrigins:[],blockedOrigins:[]});
+ const send=f.api.runtime.sendNativeMessage;
+ f.api.runtime.sendNativeMessage=async(host,m)=>{const r=await send(host,m);if(m.command==='status')r.data.nfcCryptoSupported=true;return r};
+ for(const action of ['GET_DECRYPT_CERTIFICATE','UNWRAP_TRANSPORT_KEY']){
+  const r=await f.send({action,origin:'https://spoof.test',options:{mode:'nfc',can:'123456'}});
+  assert.equal(r.ok,true);assert.equal(f.calls.at(-1).mode,'nfc');assert.equal(f.calls.at(-1).can,'123456');assert.equal(f.calls.at(-1).origin,sender.tab.url.slice(0,-1));assert.equal(f.calls.at(-1).pin,undefined);
+ }
+ assert.equal((await f.send({action:'GET_DECRYPT_CERTIFICATE',options:{mode:'nfc',can:'12345x'}})).errorCode,'ERR_EIDPD_INVALID_REQUEST');
+});
+test('old native host cannot silently perform contact crypto for NFC requests',async()=>{
+ const f=fixture({defaultAction:'allow',allowedOrigins:[],blockedOrigins:[]});
+ assert.equal((await f.send({action:'GET_DECRYPT_CERTIFICATE',options:{mode:'nfc',can:'123456'}})).errorCode,'ERR_EIDPD_VERSION_MISMATCH');
+ assert.equal(f.calls.some(x=>x.command==='get-decrypt-certificate'),false);
+});
+test('NFC discovery rechecks navigation and policy before card access',async()=>{
+ for(const change of ['navigation','policy']){
+  const p={defaultAction:'allow',allowedOrigins:[],blockedOrigins:[]};const f=fixture(p);
+  const original=f.api.runtime.sendNativeMessage;
+  f.api.runtime.sendNativeMessage=async(host,m)=>{
+   const r=await original(host,m);
+   if(m.command==='status'){r.data.nfcCryptoSupported=true;if(change==='navigation')f.setTab({...sender.tab,url:'https://other.test/'});else p.defaultAction='deny';}
+   return r;
+  };
+  const r=await f.send({action:'GET_DECRYPT_CERTIFICATE',options:{mode:'nfc',can:'123456'}});
+  assert.equal(r.errorCode,change==='navigation'?'ERR_EIDPD_USER_CANCELLED':'ERR_EIDPD_SITE_DENIED');
+  assert.equal(f.calls.some(x=>x.command==='get-decrypt-certificate'),false);
+ }
+});
+test('NFC discovery cannot overlap another tab card operation',async()=>{
+ const f=fixture({defaultAction:'allow',allowedOrigins:[],blockedOrigins:[]});
+ f.api.tabs.get=async id=>({...sender.tab,id});
+ let releaseStatus,releaseCard,startedStatus,startedCard;
+ const statusStarted=new Promise(r=>startedStatus=r),cardStarted=new Promise(r=>startedCard=r);
+ const original=f.api.runtime.sendNativeMessage;
+ f.api.runtime.sendNativeMessage=async(host,m)=>{
+  if(m.command==='status'){startedStatus();await new Promise(r=>releaseStatus=r);return {ok:true,data:{protocol:1,nfcCryptoSupported:true}};}
+  if(m.command==='readPersonalData'){startedCard();await new Promise(r=>releaseCard=r);}
+  return original(host,m);
+ };
+ const first=f.send({action:'GET_DECRYPT_CERTIFICATE',options:{mode:'nfc',can:'123456'}});
+ await statusStarted;
+ const other=f.send({action:'READ_PERSONAL_DATA'},{...sender,tab:{...sender.tab,id:2}});
+ await cardStarted;releaseStatus();
+ try{assert.equal((await first).errorCode,'ERR_EIDPD_ACTION_PENDING');assert.equal(f.calls.some(x=>x.command==='get-decrypt-certificate'),false);}
+ finally{releaseCard();await other;}
+});

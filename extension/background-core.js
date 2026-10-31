@@ -123,7 +123,7 @@
     if(action==='STATUS'){
       const r=await native({command:'status'});
       if(r.data?.protocol!==1)throw fail('ERR_EIDPD_VERSION_MISMATCH','Uuenda EID-PD tööjaamakomponenti');
-      return {ok:true,...r.data,extension:api.runtime.getManifest().version,access:{
+      return {ok:true,...r.data,nfcCryptoBridge:true,extension:api.runtime.getManifest().version,access:{
         personalData:decision(p,site,await remembered(site,'personalData')),
         decrypt:decision(p,site,await remembered(site,'decrypt'))
       }};
@@ -143,9 +143,24 @@
       if(options.pin || options.pkcs11)throw fail('ERR_EIDPD_INVALID_REQUEST','PIN ja PKCS11 seadistus kuuluvad tööjaamakomponendile');
       const payload={command:commands[action],origin:site};
       if(action==='READ_PERSONAL_DATA' && (options.mode==='nfc'||request.type==='EID_PD_READ_NFC')){payload.command='readPersonalDataNFC';payload.can=options.can||request.can;}
-      if(action==='GET_DECRYPT_CERTIFICATE'||action==='UNWRAP_TRANSPORT_KEY')payload.lang=options.lang;
+      if(action==='GET_DECRYPT_CERTIFICATE'||action==='UNWRAP_TRANSPORT_KEY'){
+        payload.lang=options.lang;
+        if(options.mode!==undefined&&!['contact','nfc'].includes(options.mode))throw fail('ERR_EIDPD_INVALID_REQUEST','Tundmatu kaardilugeja režiim');
+        payload.mode=options.mode||'contact';
+        if(payload.mode==='nfc'){
+          if(typeof options.can!=='string'||!/^\d{6}$/.test(options.can))throw fail('ERR_EIDPD_INVALID_REQUEST','CAN peab sisaldama kuut numbrit');
+          const status=await native({command:'status'});
+          if(status.data?.nfcCryptoSupported!==true)throw fail('ERR_EIDPD_VERSION_MISMATCH','Uuenda EID-PD tööjaamakomponenti NFC krüptograafia toega versioonile');
+          payload.can=options.can;
+        }
+      }
       if(action==='UNWRAP_TRANSPORT_KEY'){payload.certificate=request.certificate;payload.challenge=request.challenge;}
       if(action==='DECRYPT_CONTAINER')payload.containerBase64=options.containerBase64;
+      // NFC capability discovery is asynchronous: navigation, policy or another
+      // tab's card operation may have changed while the native host replied.
+      await current(sender);
+      if(decision(await policy(),site,await remembered(site,capability))==='deny')throw fail('ERR_EIDPD_SITE_DENIED','Veebileht on keelatud');
+      if(cardBusy)throw fail('ERR_EIDPD_ACTION_PENDING','Kaarditoiming on juba pooleli');
       cardBusy=true;
       try {const response=await native(payload);await current(sender);return response;}finally{cardBusy=false;}
     } finally {activeTabs.delete(sender.tab.id);}
