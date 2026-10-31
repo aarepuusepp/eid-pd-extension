@@ -5,7 +5,7 @@ See [release notes](RELEASE-2.1.6.md). Includes web-eid-pd.js 1.0.2.
 
 ## Development installation
 
-Build the 2.1.6 workstation package (reader 2.1.5, extension 2.1.6) in the sibling eid-pd-installer
+Build the 2.1.10 workstation package (reader 2.1.10, extension 2.1.6) in the sibling eid-pd-installer
 repository with build-installer.ps1. Install its EXE, then load its unpacked
 browser directory:
 - Chrome/Edge: Extensions > Developer mode > Load unpacked > browsers/2.1.6/chromium.
