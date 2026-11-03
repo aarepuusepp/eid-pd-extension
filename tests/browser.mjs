@@ -4,7 +4,7 @@ import {tmpdir} from 'node:os';
 import {resolve} from 'node:path';
 const expect=baseExpect.configure({timeout:15000});
 const extension=resolve(process.env.EIDPD_EXTENSION_PATH||'extension');
-const sdk=readFileSync('web-eid-pd/index.js','utf8');
+const sdk=readFileSync(new URL(import.meta.resolve('web-eid-pd.js')),'utf8');
 for(const channel of ['chromium','msedge']){
  const profile=mkdtempSync(tmpdir()+'/eidpd-browser-');
  const context=await chromium.launchPersistentContext(profile,{channel,headless:true,args:['--disable-extensions-except='+extension,'--load-extension='+extension]});

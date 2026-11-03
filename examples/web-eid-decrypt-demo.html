@@ -2,16 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>web-eid-decrypt.js demo</title>
+  <title>EID-PD decrypt API demo</title>
 </head>
 <body>
-  <h1>web-eid-decrypt.js demo</h1>
-  <p>Requires eid-pd extension 2.x, native reader, and HTTPS.</p>
+  <h1>EID-PD decrypt API demo</h1>
+  <p>Run npm ci, serve this repository over HTTPS, and install the EID-PD extension and native reader.</p>
   <button id="status">status()</button>
   <button id="cert">getDecryptCertificate()</button>
   <pre id="out"></pre>
   <script type="module">
-    import * as eidpd from '../../web-eid-decrypt.js/dist/es/web-eid-decrypt.js';
+    import * as eidpd from '../node_modules/web-eid-pd.js/index.js';
     const out = document.getElementById('out');
     document.getElementById('status').onclick = async () => {
       out.textContent = JSON.stringify(await eidpd.status(), null, 2);

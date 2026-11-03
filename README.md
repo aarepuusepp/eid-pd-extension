@@ -1,7 +1,7 @@
 # EID-PD browser extension 2.1.6
 
 Chrome, Edge and Firefox native-messaging bridge for the EID-PD Windows reader.
-See [release notes](RELEASE-2.1.6.md). Includes web-eid-pd.js 1.0.2.
+See [release notes](RELEASE-2.1.6.md). Browser tests use the separately versioned web-eid-pd.js SDK.
 
 ## Development installation
 
@@ -19,7 +19,9 @@ Public distribution requires browser-store publication/signing separately.
 
 ## Web integration
 
-Bundle the npm package in web-eid-pd with the application. See its README and
+Bundle [web-eid-pd.js](https://github.com/aarepuusepp/web-eid-pd.js) with the
+application using a versioned release tarball and a committed lockfile. The SDK and
+legacy decrypt package are maintained in that repository. See its README and
 TypeScript declarations. HTTPS top-level pages only; do not inject scripts from
 chrome-extension URLs. The legacy EstEID_PD and web-eid-decrypt interfaces share
 the same permission gate.
@@ -38,7 +40,8 @@ without granting a website permission or forwarding the result to that website.
 ## Checks
 
 - npm test: permission, legacy, NFC, navigation and concurrency regression tests.
-- npm --prefix web-eid-pd test: shared SDK and readiness watcher tests.
+- npm ci: install the locked SDK dependency and browser test tools.
+- SDK and readiness watcher tests run in the separate SDK repository.
 - npm run test:browser: Chromium/Edge extension, SDK, consent and popup flows
   using mocked native I/O.
 - Real-card acceptance: see eid-pd-reader/docs/NFC-CRYPTO.md and

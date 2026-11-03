@@ -1,7 +1,9 @@
-# Application integration with web-eid-pd.js 1.0.2
+# Application integration with web-eid-pd.js 1.0.3
 
-Bundle the web-eid-pd npm package with the application (current repositories use
-file/vendor dependencies). Do not load scripts from a chrome-extension URL or
+Bundle the web-eid-pd.js package with the application using the versioned dependency
+`https://github.com/aarepuusepp/web-eid-pd.js/releases/download/v1.0.3/web-eid-pd.js-1.0.3.tgz`
+and commit its lockfile. For npm 12, use `allow-remote=root` in the project's `.npmrc`.
+Do not load scripts from a chrome-extension URL or
 inject a page API using an extension ID. Use a trusted HTTPS top-level page.
 
 ```js
@@ -17,8 +19,8 @@ if (result.ok && result.data) {
 
 Exports: status, watchStatus, readPersonalData, readAllReaders,
 getDecryptCertificate, unwrapTransportKey, describeStatus and installationHelp.
-[SDK documentation and types](../../web-eid-pd/README.md) are the API authority.
-The link is relative to the repository's docs folder; SDK is at web-eid-pd/.
+[SDK documentation and types](https://github.com/aarepuusepp/web-eid-pd.js) are the API authority.
+The SDK has its own repository, tests and package releases; do not copy its sources here.
 
 For NFC use {mode:'nfc', can, lang}; clear CAN after the operation and never send
 it to the backend. getDecryptCertificate reads the public certificate without
