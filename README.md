@@ -16,6 +16,8 @@ The installer generates the matching native host registrations and stable
 development extension ID. Do not manually edit manifests or copy IDs into web
 applications. Reload every application tab after updating the extension.
 Public distribution requires browser-store publication/signing separately.
+See [Firefox packaging and signing](docs/installation/FIREFOX-DISTRIBUTION.md)
+for submission ZIPs, permanently installable XPIs and public AMO listings.
 
 ## Web integration
 
