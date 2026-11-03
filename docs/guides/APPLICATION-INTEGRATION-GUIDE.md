@@ -35,6 +35,6 @@ and decrypt grants are separate. Do not auto-read personal data in status pollin
 or share card data between sites. window.EstEID_PD and legacy decrypt modules are
 compatibility adapters, not the readiness detection mechanism for new applications.
 
-Current tested set: SDK 1.0.2, extension 2.1.6, reader/package 2.1.10. Check protocol
+Previously card-tested set: SDK 1.0.2, extension 2.1.6, reader/package 2.1.10. Check protocol
 and NFC capabilities rather than requiring equal extension/reader version numbers.
 Use [installation](../installation/INSTALLATION.md) for the user-facing setup.
