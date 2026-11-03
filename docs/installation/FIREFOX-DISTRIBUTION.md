@@ -32,5 +32,17 @@ ID. Review/signing can remain pending beyond the timeout. Check the
 [Developer Hub](https://addons.mozilla.org/developers/) before retrying and use a
 new extension version when required.
 
+If Mozilla review remains pending, download the existing submission later without
+uploading it again:
+
+```powershell
+./ops/get-firefox-signed-extension.ps1 -CredentialsFile '<local-credentials.txt>' -VersionId <AMO-version-id>
+```
+
+The local credential text file must contain the Mozilla issuer (`user:...`) and a
+`JWT secret` label followed by its value. The helper reports pending review or
+downloads the approved unlisted XPI. It verifies Mozilla's hash when supplied,
+signature entries and manifest identity. It does not create a new submission.
+
 References: [web-ext sign options](https://extensionworkshop.com/documentation/develop/web-ext-command-reference/#web-ext-sign)
 and [signing/distribution channels](https://extensionworkshop.com/documentation/publish/signing-and-distribution-overview/).
