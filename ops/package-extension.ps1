@@ -7,6 +7,7 @@ New-Item -ItemType Directory -Force $OutputDir|Out-Null
 $stage=Join-Path $OutputDir ('stage-'+[guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory $stage|Out-Null
 Copy-Item (Join-Path $root 'extension/*') $stage -Recurse
+if(Test-Path (Join-Path $root 'LICENSE')){Copy-Item (Join-Path $root 'LICENSE') (Join-Path $stage 'LICENSE')}
 # Chromium manifest is already manifest.json.
 Remove-Item -LiteralPath (Join-Path $stage 'manifest-firefox.json')
 $manifest=Get-Content (Join-Path $stage 'manifest.json') -Raw|ConvertFrom-Json

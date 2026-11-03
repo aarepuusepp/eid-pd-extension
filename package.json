@@ -1,7 +1,8 @@
 {
   "name": "eid-pd-extension",
-  "version": "2.1.6",
+  "version": "2.1.8",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "test": "node --test tests/access.test.mjs",

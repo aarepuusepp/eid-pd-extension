@@ -1,7 +1,7 @@
-# EID-PD browser extension 2.1.6
+# EID-PD browser extension 2.1.8
 
 Chrome, Edge and Firefox native-messaging bridge for the EID-PD Windows reader.
-See [release notes](RELEASE-2.1.6.md). Browser tests use the separately versioned web-eid-pd.js SDK.
+See [release notes](RELEASE-2.1.8.md). Browser tests use the separately versioned web-eid-pd.js SDK.
 
 ## Development installation
 
@@ -18,6 +18,9 @@ applications. Reload every application tab after updating the extension.
 Public distribution requires browser-store publication/signing separately.
 See [Firefox packaging and signing](docs/installation/FIREFOX-DISTRIBUTION.md)
 for submission ZIPs, permanently installable XPIs and public AMO listings.
+Version 2.1.8 was submitted for the [public Firefox listing](https://addons.mozilla.org/firefox/addon/eid-pd/)
+and requires desktop Firefox 142+. Availability depends on Mozilla review.
+The installer-pinned development directories below still contain extension 2.1.6.
 
 ## Web integration
 

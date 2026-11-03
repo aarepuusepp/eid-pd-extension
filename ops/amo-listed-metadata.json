@@ -1,0 +1,13 @@
+{
+  "slug": "eid-pd",
+  "categories": { "firefox": ["privacy-security"] },
+  "summary": { "en-US": "Connects authorized HTTPS applications to the EID-PD Windows component for Estonian ID-card data reading and local decryption key operations." },
+  "description": { "en-US": "EID-PD connects supported HTTPS web applications to a separately installed Windows workstation component. Requires the EID-PD native reader, a compatible card reader and an Estonian ID card.\n\nSupports cardholder-data reading and certificate/private-key operations for applications that decrypt CDOC containers. Site access follows administrator policy and extension consent. Status checks do not read personal data. PIN entry stays in the native dialog.\n\nThis extension alone does not install the native component or open/decrypt CDOC files. Windows workstation setup: https://github.com/aarepuusepp/eid-pd-installer . Application integration and source: https://github.com/aarepuusepp/eid-pd-extension .\n\nNo developer telemetry. Card-operation results are returned to the authorized requesting website; its privacy policy governs further processing." },
+  "homepage": { "en-US": "https://github.com/aarepuusepp/eid-pd-extension" },
+  "version": {
+    "compatibility": ["firefox"],
+    "license": "MIT",
+    "release_notes": { "en-US": "Initial public AMO distribution of the current EID-PD extension. Same card-operation and consent implementation as self-distributed version 2.1.6. Adds MIT licensing, current documentation and Windows desktop-only listing compatibility." },
+    "approval_notes": "Source is plain JavaScript in extension/, with no build/minification step. Firefox packaging replaces manifest.json with manifest-firefox.json and excludes the alternate manifest. Requires the separately installed Windows native host ee.aarepuusepp.eid_pd_reader (2.1+). The host and online/offline installer sources are at github.com/aarepuusepp/eid-pd-reader and github.com/aarepuusepp/eid-pd-installer. For review without hardware, npm test exercises the policy/native dispatcher with mocks; npm run test:browser exercises actual Chromium/Edge extension integration with mocked native I/O. The extension popup reports a missing native host without requiring card access. Native card operations require real hardware; PIN entry occurs only in the native component. No developer telemetry or obfuscated code."
+  }
+}

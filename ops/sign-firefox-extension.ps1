@@ -42,6 +42,10 @@ try{
  Write-Host "START AMO submission: version=$($manifest.version), channel=$Channel"
  & node @signArgs
  if($LASTEXITCODE -ne 0){throw "AMO submission did not complete (exit $LASTEXITCODE). Check the Developer Hub before retrying; a version may already be pending review."}
+ if($ApprovalTimeout -eq 0){
+  Write-Host "PASS submitted to Mozilla ($Channel). Approval/download was not requested; check the Developer Hub before submitting again."
+  return
+ }
  $signed=@(Get-ChildItem -LiteralPath $submission -Filter '*.xpi' -File)
  if($signed.Count -eq 0){throw "No signed XPI downloaded. Check Mozilla review status; artifacts: $submission"}
  Add-Type -AssemblyName System.IO.Compression.FileSystem

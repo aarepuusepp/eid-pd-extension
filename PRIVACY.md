@@ -1,31 +1,44 @@
-# Privacy and permissions
+# Privacy policy — EID-PD browser extension
 
-EID-PD reads the requested cardholder name, identification code and document data,
-or the authentication/decryption certificate, and returns them to the calling
-website only after its effective access policy permits the operation. The website
-is responsible for its subsequent use of those results. Firefox therefore declares
-the personallyIdentifyingInfo data category at installation; it does not claim
-that no personal information is handled.
+Updated: 2026-11-03. Developer: Aare Puusepp.
 
-The extension has no analytics or telemetry endpoint. It does not cache personal
-data, certificates, decrypted content or keys. Local extension storage contains
-only user-granted website origins and the granted operation group. The settings
-page can remove these grants. Central administrator policy can override them.
+This extension connects supported HTTPS websites to the separately installed
+EID-PD native workstation component on Windows. A compatible card reader and
+Estonian ID card are required for card operations.
 
-PIN1 is entered in a native workstation dialog, never in the web page. It is not
-returned to the website or logged. Native diagnostics does not read cardholder
-data. Each confirmation displays the requesting HTTPS origin and operation.
+The extension uses the requesting tab's URL/origin to enforce site permissions
+and administrator policy. It stores extension settings and remembered site
+permissions locally in browser storage. It does not collect browsing history.
 
-The tabs permission is used to cancel pending operations when their initiating
-tab navigates or closes. Native messaging connects only to the installed EID-PD
-host. HTTPS content scripts implement the page message bridge; access to card
-operations is separately enforced by the extension and native machine policy.
+On an explicit card operation, the extension can pass cardholder information,
+public certificates and cryptographic operation results between the native
+component and the requesting website. Cardholder information may include names,
+personal identification code and document details. Access is controlled by
+administrator policy and, where required, the extension's own consent dialog.
+Personal-data and decryption permissions are separate. Status polling does not
+read cardholder information or request a PIN.
 
-The browser-action popup automatically checks presence while open. Reading in the
-popup requires an explicit button press and a current HTTPS tab. Its origin is
-resolved by the browser, not the webpage. Central blocked/default-deny policy is
-still enforced. The popup's button is a one-time consent to a local preview; it
-does not persist a website grant and never forwards the result to a webpage.
-Results exist only in the popup document, are hidden after 30 seconds, on a
-detected removal/navigation or when the popup closes. There is no shared result
-cache. The settings page remains available from the popup to revoke site grants.
+The extension does not send telemetry or cardholder information to the developer
+or an analytics service. Results returned to an authorized website are available
+to that website, whose own privacy policy governs subsequent processing and
+transmission to its backend. Review that website's policy before granting access.
+
+Cardholder information is not persisted in extension storage or shared between
+websites. The extension popup can display data locally after an explicit read.
+It clears displayed results when the card is removed. PIN entry takes place in
+the native workstation dialog; PIN is not accepted as a webpage/extension option.
+For NFC operations, the CAN entered for the operation is forwarded to the native
+component and is not persisted by the extension.
+
+The popup preview requires a current HTTPS tab and follows central blocked/default-deny
+policy. It does not grant a website permission or forward its preview to the page.
+Results exist only in the popup document and are hidden after 30 seconds, when
+removal/navigation is detected, or when the popup closes. The tabs permission is
+used to cancel pending operations on navigation/close. Native messaging connects
+only to the installed EID-PD host.
+
+Remembered site permissions can be revoked in the extension settings. Removing
+the extension removes its browser-local settings; administrator policy and the
+native workstation installation are managed separately.
+
+Questions and issues: https://github.com/aarepuusepp/eid-pd-extension/issues

@@ -44,5 +44,31 @@ The local credential text file must contain the Mozilla issuer (`user:...`) and 
 downloads the approved unlisted XPI. It verifies Mozilla's hash when supplied,
 signature entries and manifest identity. It does not create a new submission.
 
+For public distribution, the reviewed metadata is tracked in
+`ops/amo-listed-metadata.json`, the license in `LICENSE` and the privacy policy in
+`PRIVACY.md`. Set/update the AMO listing metadata and privacy policy before the
+first listed submission, then use:
+
+```powershell
+./ops/sign-firefox-extension.ps1 -Channel listed -AmoMetadataFile ./ops/amo-listed-metadata.json -ApprovalTimeout 0
+```
+
+The zero timeout submits without waiting for Mozilla review or claiming that an
+XPI was downloaded. To fetch that submission later, pass `-Channel listed` to
+`get-firefox-signed-extension.ps1`. Version 2.1.6 was approved for self-distribution;
+2.1.8 is the current public-channel submission. The 2.1.7 submission was superseded
+before approval to correct Android compatibility. Do not upload the same version again.
+
+The Developer Hub shows private/unlisted submissions as well as public versions.
+Seeing a version there, or seeing its signing approval, does not mean the version
+is publicly listed. Check the version's channel and the public page at
+https://addons.mozilla.org/firefox/addon/eid-pd/.
+
+The current public submission is version ID `6657755` (2.1.8). Download/check it:
+
+```powershell
+./ops/get-firefox-signed-extension.ps1 -CredentialsFile '<local-credentials.txt>' -VersionId 6657755 -Channel listed
+```
+
 References: [web-ext sign options](https://extensionworkshop.com/documentation/develop/web-ext-command-reference/#web-ext-sign)
 and [signing/distribution channels](https://extensionworkshop.com/documentation/publish/signing-and-distribution-overview/).

@@ -2,6 +2,7 @@
 param(
  [Parameter(Mandatory)][string]$CredentialsFile,
  [Parameter(Mandatory)][int]$VersionId,
+ [ValidateSet('unlisted','listed')][string]$Channel='unlisted',
  [string]$OutputDir=''
 )
 $ErrorActionPreference='Stop'
@@ -22,7 +23,7 @@ $auth=@{Authorization="JWT $header.$payload.$signature";'User-Agent'='EID-PD-rel
 $manifest=Get-Content (Join-Path $root 'extension/manifest-firefox.json') -Raw|ConvertFrom-Json
 $addon=[uri]::EscapeDataString($manifest.browser_specific_settings.gecko.id)
 $version=Invoke-RestMethod "https://addons.mozilla.org/api/v5/addons/addon/$addon/versions/$VersionId/" -Headers $auth
-if($version.channel -ne 'unlisted'){throw 'Expected an unlisted submission.'}
+if($version.channel -ne $Channel){throw "Expected a $Channel submission."}
 if($version.version -ne $manifest.version){throw 'Submitted version differs from the local Firefox manifest.'}
 if($version.file.status -ne 'public'){
  Write-Host "WAIT Mozilla submission $VersionId, version $($version.version): $($version.file.status). No new submission was made."
